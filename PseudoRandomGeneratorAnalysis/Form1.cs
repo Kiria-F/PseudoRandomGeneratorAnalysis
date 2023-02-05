@@ -30,6 +30,7 @@ namespace PseudoRandomGeneratorAnalysis {
             generators = new Generator[] {
                 new SlowNormalGenerator(),
                 new FastNormalGenerator(),
+                new CustomNormalGenerator(),
                 new CustomSinGenerator(),
                 new CustomLogGenerator(),
                 new CustomSqrGenerator(),
@@ -39,6 +40,7 @@ namespace PseudoRandomGeneratorAnalysis {
             GeneratorChoose.Items.AddRange(new string[] {
                 "Нормальное распр.",
                 "Нормальное распр. уск.",
+                "Каст. нормальное распр.",
                 "Синусоидальное распр.",
                 "Логарифмическое распр.",
                 "Квадратичное распр.",
@@ -476,6 +478,107 @@ namespace PseudoRandomGeneratorAnalysis {
                 }
             }
             return data;
+        }
+    }
+
+    class CustomNormalGenerator : Generator
+    {
+        public CustomNormalGenerator()
+        {
+            parameterNames = new string[] {
+                "left", // левостороннее крайнее значение
+                "right", // правостороннее крайнее значение
+                "si", // ср. кв. отклонение
+                "m", // мат. ожидание
+            };
+            parameterlabels = new string[] {
+                "[", // левостороннее крайнее значение
+                "]", // правостороннее крайнее значение
+                "σ", // ср. кв. отклонение
+                "m", // мат. ожидание
+            };
+            defaultValues = new decimal[] {
+                0M, // left
+                100M, // right
+                10M, // si
+                50M, // m
+            };
+            parameterInputs = new NumericUpDown[parameterNames.Length];
+            decimal?[] minVals = { null, null, 0M, null };
+            parameterDecPlaces = new int[] { 0, 0, 3, 3 };
+            for (int i = 0; i < parameterNames.Length; i++)
+            {
+                parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
+            }
+        }
+
+        private double[] ModelFunction(int left, int right, double si, double m)
+        {
+            Func<double, double> coreFunction;
+            {
+                double a = 1d / si / Math.Sqrt(2 * Math.PI);
+                double b = m;
+                double c = si;
+                double z = -1d / 2 / c / c;
+                coreFunction = (x) => { x -= b; return a * Math.Pow(Math.E, x * x * z); };
+            }
+            double[] model = new double[right - left];
+            double yLast = coreFunction(left);
+            model[0] = yLast;
+            for (int i = 1; i < right - left; i++)
+            {
+                double x = (double)i + left;
+                double y = coreFunction(x);
+                yLast += y;
+                model[i] = yLast;
+            }
+            double decreaser = model[0];
+            yLast -= decreaser;
+            for (int i = 0; i < model.Length; i++)
+            {
+                model[i] = (model[i] - decreaser) / yLast;
+            }
+            return model;
+        }
+
+        public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters)
+        {
+            int parameter_left = (int)(parameters["left"] + 0.5);
+            int parameter_right = (int)(parameters["right"] + 0.5) + 2;
+            double parameter_si = parameters["si"];
+            double parameter_m = parameters["m"];
+            double[] model = ModelFunction(parameter_left, parameter_right, parameter_si, parameter_m);
+            Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
+            int il, ir, im;
+            for (ulong iteration = 0; iteration < randCount; iteration++)
+            {
+                double rand = random.NextDouble();
+                il = 0;
+                ir = model.Length - 1;
+                im = (il + ir) / 2;
+                while (ir - il > 1)
+                {
+                    if (rand >= model[im])
+                    {
+                        il = im;
+                    }
+                    else
+                    {
+                        ir = im;
+                    }
+                    im = (il + ir) / 2;
+                }
+                int key = il + parameter_left;
+                if (sequence.ContainsKey(key))
+                {
+                    sequence[key]++;
+                }
+                else
+                {
+                    sequence.Add(key, 1);
+                }
+            }
+            return sequence;
         }
     }
 
