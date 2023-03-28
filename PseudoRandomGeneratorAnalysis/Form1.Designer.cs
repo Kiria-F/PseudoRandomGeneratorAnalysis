@@ -409,7 +409,7 @@
             // InputCount
             // 
             this.InputCount.Dock = System.Windows.Forms.DockStyle.Top;
-            this.InputCount.Location = new System.Drawing.Point(25, 0);
+            this.InputCount.Location = new System.Drawing.Point(28, 0);
             this.InputCount.Maximum = new decimal(new int[] {
             -1,
             -1,
@@ -421,7 +421,7 @@
             0,
             0});
             this.InputCount.Name = "InputCount";
-            this.InputCount.Size = new System.Drawing.Size(185, 28);
+            this.InputCount.Size = new System.Drawing.Size(182, 28);
             this.InputCount.TabIndex = 5;
             this.InputCount.Value = new decimal(new int[] {
             1000000,
@@ -435,9 +435,9 @@
             this.LabelInputSi.Dock = System.Windows.Forms.DockStyle.Left;
             this.LabelInputSi.Location = new System.Drawing.Point(0, 0);
             this.LabelInputSi.Name = "LabelInputSi";
-            this.LabelInputSi.Size = new System.Drawing.Size(25, 22);
+            this.LabelInputSi.Size = new System.Drawing.Size(28, 22);
             this.LabelInputSi.TabIndex = 1;
-            this.LabelInputSi.Text = "σ ";
+            this.LabelInputSi.Text = "N ";
             // 
             // tabPage2
             // 
