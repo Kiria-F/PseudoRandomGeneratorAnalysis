@@ -8,6 +8,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
+using System.Xml.Xsl;
+using System.Windows.Forms.VisualStyles;
 
 namespace PseudoRandomGeneratorAnalysis {
 
@@ -21,10 +23,10 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public Form1() {
             InitializeComponent();
-            BaseChart.ChartAreas["Histogram"].AxisX.Minimum = 0;
-            BaseChart.ChartAreas["Histogram"].AxisX.Maximum = 100;
-            BaseChart.ChartAreas["Graphic"].AxisX.Minimum = 0;
-            BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
+            //BaseChart.ChartAreas["Histogram"].AxisX.Minimum = 0;
+            //BaseChart.ChartAreas["Histogram"].AxisX.Maximum = 100;
+            //BaseChart.ChartAreas["Graphic"].AxisX.Minimum = 0;
+            //BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
 
             // Now there are 2 generators
             generators = new Generator[] {
@@ -70,13 +72,13 @@ namespace PseudoRandomGeneratorAnalysis {
             BaseChart.Series.Clear();
         }
 
-        private void AddDataToChart(Dictionary<int, ulong> data, ulong randCount) {
+        private void AddDataToChart(Dictionary<double, ulong> data, ulong randCount) {
             System.Windows.Forms.DataVisualization.Charting.Series seriesH = new System.Windows.Forms.DataVisualization.Charting.Series();
             seriesH.ChartArea = "Histogram";
             //seriesH.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
             seriesH.Name = "histogram" + BaseChart.Series.Count;
             seriesH.YValuesPerPoint = 2;
-            foreach (KeyValuePair<int, ulong> i in data) {
+            foreach (KeyValuePair<double, ulong> i in data) {
                 seriesH.Points.AddXY(i.Key, (double)i.Value / randCount);
             }
             BaseChart.Series.Add(seriesH);
@@ -89,27 +91,27 @@ namespace PseudoRandomGeneratorAnalysis {
             //seriesG.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             seriesG.Name = "graphic" + BaseChart.Series.Count;
             ulong graphIncr = 0;
-            foreach (KeyValuePair<int, ulong> i in data.OrderBy(i => i.Key)) {
+            foreach (KeyValuePair<double, ulong> i in data.OrderBy(i => i.Key)) {
                 graphIncr += i.Value;
                 seriesG.Points.AddXY(i.Key, (double)graphIncr / randCount);
             }
             BaseChart.Series.Add(seriesG);
         }
 
-        private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
+        private void CalcStats(Dictionary<double, ulong> data, ulong randCount) {
             double m = 0, d = 0;
-            foreach (KeyValuePair<int, ulong> i in data) {
+            foreach (KeyValuePair<double, ulong> i in data) {
                 m += (double)i.Key * i.Value;
             }
             m /= randCount;
-            foreach (KeyValuePair<int, ulong> i in data) {
+            foreach (KeyValuePair<double, ulong> i in data) {
                 double underSqr = (double)i.Key - m;
                 d += underSqr * underSqr * i.Value;
             }
             d /= randCount;
             double si = Math.Sqrt(d), si3 = si * 3, leftBorder = m - si3, rightBorder = m + si3;
             double outOf3Si = 0;
-            foreach (KeyValuePair<int, ulong> i in data) {
+            foreach (KeyValuePair<double, ulong> i in data) {
                 if (i.Key <= leftBorder || i.Key >= rightBorder) {
                     outOf3Si += i.Value;
                 }
@@ -124,8 +126,8 @@ namespace PseudoRandomGeneratorAnalysis {
         private void Run(bool rerun) {
             ulong randCount = (ulong)InputCount.Value;
             int generatorIndex = GeneratorChoose.SelectedIndex;
-            Dictionary<string, double> parameters = generators[generatorIndex].CollectParameterValues();
-            Dictionary<int, ulong> data = null;
+            Dictionary<string, decimal> parameters = generators[generatorIndex].CollectParameterValues();
+            Dictionary<double, ulong> data = null;
             int seconds1 = 0;
             int millis1 = 0;
             int seconds2 = 0;
@@ -173,33 +175,33 @@ namespace PseudoRandomGeneratorAnalysis {
             Run(false);
         }
 
-        private void ButtonRun_Click_OLD(object sender, EventArgs e) {
+        //private void ButtonRun_Click_OLD(object sender, EventArgs e) {
 
-            EnableControls(false);
+        //    EnableControls(false);
 
-            ulong randCount = (ulong)InputCount.Value;
-            int generatorIndex = GeneratorChoose.SelectedIndex;
-            Dictionary<string, double> parameters = generators[generatorIndex].CollectParameterValues();
-            Dictionary<int, ulong> data = null;
-            Task task = new Task(() => { data = generators[generatorIndex].Sequence(randCount, parameters); });
+        //    ulong randCount = (ulong)InputCount.Value;
+        //    int generatorIndex = GeneratorChoose.SelectedIndex;
+        //    Dictionary<string, decimal> parameters = generators[generatorIndex].CollectParameterValues();
+        //    Dictionary<int, ulong> data = null;
+        //    Task task = new Task(() => { data = generators[generatorIndex].Sequence(randCount, parameters); });
 
-            int seconds1 = DateTime.Now.Second;
-            int millis1 = DateTime.Now.Millisecond;
+        //    int seconds1 = DateTime.Now.Second;
+        //    int millis1 = DateTime.Now.Millisecond;
 
-            task.Start();
-            //Dictionary<int, ulong> data = generators[generatorIndex].Sequence(randCount, parameters);
+        //    task.Start();
+        //    //Dictionary<int, ulong> data = generators[generatorIndex].Sequence(randCount, parameters);
 
-            int seconds2 = DateTime.Now.Second;
-            int millis2 = DateTime.Now.Millisecond;
-            if (seconds2 < seconds1) {
-                seconds2 += 60;
-            }
-            LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
+        //    int seconds2 = DateTime.Now.Second;
+        //    int millis2 = DateTime.Now.Millisecond;
+        //    if (seconds2 < seconds1) {
+        //        seconds2 += 60;
+        //    }
+        //    LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
 
-            AddDataToChart(data, randCount);
-            CalcStats(data, randCount);
-            EnableControls(true);
-        }
+        //    AddDataToChart(data, randCount);
+        //    CalcStats(data, randCount);
+        //    EnableControls(true);
+        //}
 
         private void ConsoleSetProgress(int val1000) {
             if (val1000 == lastProgressVal) {
@@ -260,10 +262,7 @@ namespace PseudoRandomGeneratorAnalysis {
         public string[] parameterNames;
         public string[] parameterlabels;
         public decimal[] defaultValues;
-        public int[] parameterDecPlaces;
         public NumericUpDown[] parameterInputs;
-
-        public abstract Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters);
 
         protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
             if (!min.HasValue) min = decimal.MinValue;
@@ -271,26 +270,25 @@ namespace PseudoRandomGeneratorAnalysis {
 
             NumericUpDown input = new NumericUpDown();
             input.Name = "input_" + name;
-            input.DecimalPlaces = 3;
+            input.DecimalPlaces = quality;
             input.AutoSize = true;
             input.Dock = System.Windows.Forms.DockStyle.Fill;
-            input.DecimalPlaces = quality;
             input.Minimum = min.Value;
             input.Maximum = max.Value;
             input.Value = defaultValue;
             return input;
         }
 
-        public Dictionary<string, double> CollectParameterValues() {
-            Dictionary<string, double> parameters = new Dictionary<string, double>();
-            for (int i = 0; i < parameterInputs.Length; i++) {
-                parameters.Add(parameterNames[i], (double)parameterInputs[i].Value);
+        public Dictionary<string, decimal> CollectParameterValues() {
+            Dictionary<string, decimal> parameters = new Dictionary<string, decimal>();
+            for (int i = 0; i < parameterInputs.Count(); i++) {
+                parameters.Add(parameterNames[i], parameterInputs[i].Value);
             }
             return parameters;
         }
 
         public Panel[] GenerateCompleteInputs() {
-            Panel[] container = new Panel[parameterInputs.Length];
+            Panel[] container = new Panel[parameterInputs.Count()];
             for (int i = 0; i < container.Length; i++) {
                 container[i] = new Panel();
                 container[i].AutoSize = true;
@@ -309,6 +307,19 @@ namespace PseudoRandomGeneratorAnalysis {
                 container[i].Controls.Add(inputLabel);
             }
             return container;
+        }
+
+        public virtual Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            return null;
+        }
+
+        public virtual Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            Dictionary<int, ulong> iSequence = ISequence(randCount, parameters);
+            Dictionary<double, ulong> dSequence = new Dictionary<double, ulong>();
+            foreach(KeyValuePair<int, ulong> kvp in iSequence) {
+                dSequence.Add(kvp.Key, kvp.Value);
+            }
+            return dSequence;
         }
     }
 
@@ -330,9 +341,9 @@ namespace PseudoRandomGeneratorAnalysis {
                 50M, // m
                 12M // n
             };
-            parameterInputs = new NumericUpDown[parameterNames.Length];
+            parameterInputs = new NumericUpDown[parameterNames.Count()];
             decimal?[] minVals = { 0M, null, 0M };
-            parameterDecPlaces = new int[] { 3, 3, 3 };
+            int[] parameterDecPlaces = new int[] { 3, 3, 3 };
             for (int i = 0; i < parameterNames.Length; i++) {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
             }
@@ -394,10 +405,10 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters) {
-            double parameter_n = parameters["n"];
-            double parameter_si = parameters["si"];
-            double parameter_m = parameters["m"];
+        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            double parameter_n = (double)parameters["n"];
+            double parameter_si = (double)parameters["si"];
+            double parameter_m = (double)parameters["m"];
 
             Dictionary<double, ulong> preData = NormalSequence(randCount, parameter_n);
             double preSi = CalcPreSi(preData);
@@ -430,9 +441,9 @@ namespace PseudoRandomGeneratorAnalysis {
                 0.288077825M, // a
                 -0.4988888129M // b
             };
-            parameterInputs = new NumericUpDown[parameterNames.Length];
+            parameterInputs = new NumericUpDown[parameterNames.Count()];
             decimal?[] minVals = { 0M, null, 0M, null, null };
-            parameterDecPlaces = new int[] { 3, 3, 3, 9, 9 };
+            int[] parameterDecPlaces = new int[] { 3, 3, 3, 9, 9 };
             for (int i = 0; i < parameterNames.Length; i++) {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
             }
@@ -456,12 +467,12 @@ namespace PseudoRandomGeneratorAnalysis {
             return sum / n;
         }
 
-        public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters) {
-            double parameter_n = parameters["n"];
-            double parameter_a = parameters["a"];
-            double parameter_b = parameters["b"];
-            double parameter_si = parameters["si"];
-            double parameter_m = parameters["m"];
+        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            double parameter_n = (double)parameters["n"];
+            double parameter_a = (double)parameters["a"];
+            double parameter_b = (double)parameters["b"];
+            double parameter_si = (double)parameters["si"];
+            double parameter_m = (double)parameters["m"];
 
             Dictionary<int, ulong> data = new Dictionary<int, ulong>();
 
@@ -505,7 +516,7 @@ namespace PseudoRandomGeneratorAnalysis {
             };
             parameterInputs = new NumericUpDown[parameterNames.Length];
             decimal?[] minVals = { null, null, 0M, null };
-            parameterDecPlaces = new int[] { 0, 0, 3, 3 };
+            int[] parameterDecPlaces = new int[] { 3, 3, 3, 3 };
             for (int i = 0; i < parameterNames.Length; i++)
             {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
@@ -541,12 +552,12 @@ namespace PseudoRandomGeneratorAnalysis {
             return model;
         }
 
-        public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters)
+        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters)
         {
-            int parameter_left = (int)(parameters["left"] + 0.5);
-            int parameter_right = (int)(parameters["right"] + 0.5) + 2;
-            double parameter_si = parameters["si"];
-            double parameter_m = parameters["m"];
+            int parameter_left = (int)((double)parameters["left"] + 0.5);
+            int parameter_right = (int)((double)parameters["right"] + 0.5) + 2;
+            double parameter_si = (double)parameters["si"];
+            double parameter_m = (double)parameters["m"];
             double[] model = ModelFunction(parameter_left, parameter_right, parameter_si, parameter_m);
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             int il, ir, im;
@@ -582,67 +593,65 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    abstract class CustomGenerator : Generator {
+    abstract class CustomGenerator : Generator{
 
         protected abstract double CoreFunction(double x);
+    }
 
-        protected double[] ModelFunction(int left, int right, double scale, double shift) {
-            double[] model = new double[right - left];
-            double yLast = CoreFunction(((double)left) / scale);
-            if (yLast < 0) {
-                yLast = 0;
-            }
-            model[0] = yLast;
-            for (int i = 1; i < right - left; i++) {
-                double x = ((double)i + left - shift) / scale;
-                double y = CoreFunction(x);
-                if (y < 0) {
-                    y = 0;
-                }
-                yLast += y;
-                model[i] = yLast;
-            }
-            double decreaser = model[0];
-            yLast -= decreaser;
-            for (int i = 0; i < model.Length; i++) {
-                model[i] = (model[i] - decreaser) / yLast;
-            }
-            return model;
-        }
+    abstract class RasterCustomGenerator : CustomGenerator {
 
-        public CustomGenerator() {
+        public RasterCustomGenerator() {
             parameterNames = new string[] {
                 "left",
                 "right",
-                "scale",
-                "shift"
+                "quality"
             };
             parameterlabels = new string[] {
-                "[", // левостороннее крайнее значение
-                "]", // правостороннее крайнее значение
-                "↔", // приближение
-                "→" // сдвиг
+                "Левая  гр.",
+                "Правая гр.",
+                "Детализация"
             };
             defaultValues = new decimal[] {
-                0M, // left
-                100M, // right
-                10M, // scale
-                0M // shift
+                0M,
+                100M,
+                100M
             };
             parameterInputs = new NumericUpDown[parameterNames.Length];
-            parameterDecPlaces = new int[] { 0, 0, 3, 3 };
+            int[] parameterDecPlaces = new int[] { 3, 3, 0 };
             for (int i = 0; i < parameterNames.Length; i++) {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], null, null);
             }
         }
 
-        public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters) {
-            int parameter_left = (int)(parameters["left"] + 0.5);
-            int parameter_right = (int)(parameters["right"] + 0.5) + 2;
-            double parameter_scale = (double)parameters["scale"];
-            double parameter_shift = (double)parameters["shift"];
-            double[] model = ModelFunction(parameter_left, parameter_right, parameter_scale, parameter_shift);
-            Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
+        protected KVPair<double, double>[] ModelFunction(Dictionary<string, decimal> parameters) {
+            double left = (double)parameters["left"];
+            double right = (double)parameters["right"];
+            int quality = (int)parameters["quality"];
+            double step = (right - left) / quality;
+            right += step / 2;
+
+            KVPair<double, double>[] model = new KVPair<double, double>[quality];
+            double yLast = 0;
+            double x = left;
+            for (int i = 0; i < quality; i++, x = left + step * i) {
+                double y = CoreFunction(x);
+                if (y < 0) {
+                    y = 0;
+                }
+                yLast += y;
+                model[i] = new KVPair<double, double>(x, yLast);
+            }
+            double decrease = model[0].Value;
+            double compression = yLast - decrease;
+            for (int i = 0; i < model.Length; i++) {
+                model[i].Value = (model[i].Value - decrease) / compression;
+            }
+            return model;
+        }
+
+        public override Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            KVPair<double, double>[] model = ModelFunction(parameters);
+            Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
             int il, ir, im;
             for (ulong iteration = 0; iteration < randCount; iteration++) {
                 double rand = random.NextDouble();
@@ -650,14 +659,14 @@ namespace PseudoRandomGeneratorAnalysis {
                 ir = model.Length - 1;
                 im = (il + ir) / 2;
                 while (ir - il > 1) {
-                    if (rand >= model[im]) {
+                    if (rand >= model[im].Value) {
                         il = im;
                     } else {
                         ir = im;
                     }
                     im = (il + ir) / 2;
                 }
-                int key = il + parameter_left;
+                double key = model[il].Key;
                 if (sequence.ContainsKey(key)) {
                     sequence[key]++;
                 } else {
@@ -668,31 +677,73 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class CustomSinGenerator : CustomGenerator {
+    class CustomSinGenerator : RasterCustomGenerator {
 
         protected override double CoreFunction(double x) {
             return Math.Sin(x) + 1;
         }
     }
 
-    class CustomLogGenerator : CustomGenerator {
+    class CustomLogGenerator : RasterCustomGenerator {
 
         protected override double CoreFunction(double x) {
             return Math.Log(x + 1);
         }
     }
 
-    class CustomSqrGenerator : CustomGenerator {
+    class CustomSqrGenerator : RasterCustomGenerator {
 
         protected override double CoreFunction(double x) {
             return x * x;
         }
     }
 
-    class Custom2PowerGenerator : CustomGenerator {
+    class Custom2PowerGenerator : RasterCustomGenerator {
 
         protected override double CoreFunction(double x) {
             return Math.Pow(Math.E, x);
         }
     }
+
+    //abstract class VectorCustomGenerator : Generator {
+
+    //    protected abstract double CoreFunction(double x);
+
+    //    protected double[] ModelFunction(double left, double right, double scale, double shift, double accuracy) {
+    //        return new double[] { };
+    //    }
+
+    //    public VectorCustomGenerator() {
+    //        parameterNames = new string[] {
+    //            "left",
+    //            "right",
+    //            "scale",
+    //            "shift",
+    //            "accuracy"
+    //        };
+    //        parameterlabels = new string[] {
+    //            "[", // левостороннее крайнее значение
+    //            "]", // правостороннее крайнее значение
+    //            "↔", // приближение
+    //            "→", // сдвиг
+    //            "⨯" // точность
+    //        };
+    //        defaultValues = new decimal[] {
+    //            0M, // left
+    //            100M, // right
+    //            10M, // scale
+    //            0M, // shift
+    //            1M // accuracy
+    //        };
+    //        parameterInputs = new NumericUpDown[parameterNames.Length];
+    //        int[] parameterDecPlaces = new int[] { 3, 3, 3, 3, 3 };
+    //        for (int i = 0; i < parameterNames.Length; i++) {
+    //            parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], null, null);
+    //        }
+    //    }
+
+    //    public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters) {
+    //        return new Dictionary<int, ulong> { };
+    //    }
+    //}
 }
