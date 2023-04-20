@@ -36,7 +36,8 @@ namespace PseudoRandomGeneratorAnalysis {
                 new CustomSinGenerator(),
                 new CustomLogGenerator(),
                 new CustomSqrGenerator(),
-                new Custom2PowerGenerator()
+                new Custom2PowerGenerator(),
+                new VCustomSinGenerator()
             };
 
             GeneratorChoose.Items.AddRange(new string[] {
@@ -46,7 +47,8 @@ namespace PseudoRandomGeneratorAnalysis {
                 "Синусоидальное распр.",
                 "Логарифмическое распр.",
                 "Квадратичное распр.",
-                "Показательное распр."
+                "Показательное распр.",
+                "Новый синус"
             });
 
             GeneratorChoose.SelectedIndex = 0;
@@ -593,7 +595,30 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    abstract class CustomGenerator : Generator{
+    abstract class CustomGenerator : Generator {
+
+        protected KVPair<double, double>[] ModelFunction(double left, double right, int detalization) {
+            double step = (right - left) / detalization;
+            right += step / 2;
+
+            KVPair<double, double>[] model = new KVPair<double, double>[detalization];
+            double yLast = 0;
+            double x = left;
+            for (int i = 0; i < detalization; i++, x = left + step * i) {
+                double y = CoreFunction(x);
+                if (y < 0) {
+                    y = 0;
+                }
+                yLast += y;
+                model[i] = new KVPair<double, double>(x, yLast);
+            }
+            double decrease = model[0].Value;
+            double compression = yLast - decrease;
+            for (int i = 0; i < model.Length; i++) {
+                model[i].Value = (model[i].Value - decrease) / compression;
+            }
+            return model;
+        }
 
         protected abstract double CoreFunction(double x);
     }
@@ -604,7 +629,7 @@ namespace PseudoRandomGeneratorAnalysis {
             parameterNames = new string[] {
                 "left",
                 "right",
-                "quality"
+                "detalization"
             };
             parameterlabels = new string[] {
                 "Левая  гр.",
@@ -623,34 +648,8 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        protected KVPair<double, double>[] ModelFunction(Dictionary<string, decimal> parameters) {
-            double left = (double)parameters["left"];
-            double right = (double)parameters["right"];
-            int quality = (int)parameters["quality"];
-            double step = (right - left) / quality;
-            right += step / 2;
-
-            KVPair<double, double>[] model = new KVPair<double, double>[quality];
-            double yLast = 0;
-            double x = left;
-            for (int i = 0; i < quality; i++, x = left + step * i) {
-                double y = CoreFunction(x);
-                if (y < 0) {
-                    y = 0;
-                }
-                yLast += y;
-                model[i] = new KVPair<double, double>(x, yLast);
-            }
-            double decrease = model[0].Value;
-            double compression = yLast - decrease;
-            for (int i = 0; i < model.Length; i++) {
-                model[i].Value = (model[i].Value - decrease) / compression;
-            }
-            return model;
-        }
-
         public override Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
-            KVPair<double, double>[] model = ModelFunction(parameters);
+            KVPair<double, double>[] model = ModelFunction((double)parameters["left"], (double)parameters["right"], (int)parameters["detalization"]);
             Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
             int il, ir, im;
             for (ulong iteration = 0; iteration < randCount; iteration++) {
@@ -705,45 +704,72 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    //abstract class VectorCustomGenerator : Generator {
+    abstract class VectorCustomGenerator : CustomGenerator {
 
-    //    protected abstract double CoreFunction(double x);
+        public VectorCustomGenerator() {
+            parameterNames = new string[] {
+                "left",
+                "right",
+                "quality",
+                "detalization"
+            };
+            parameterlabels = new string[] {
+                "Левая  гр.",
+                "Правая гр.",
+                "Качество",
+                "Детализация"
+            };
+            defaultValues = new decimal[] {
+                0M,
+                100M,
+                10M,
+                100M,
+            };
+            parameterInputs = new NumericUpDown[parameterNames.Length];
+            int[] parameterDecPlaces = new int[] { 3, 3, 3, 3, 3 };
+            for (int i = 0; i < parameterNames.Length; i++) {
+                parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], null, null);
+            }
+        }
 
-    //    protected double[] ModelFunction(double left, double right, double scale, double shift, double accuracy) {
-    //        return new double[] { };
-    //    }
+        public override Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
+            int detalization = (int)parameters["detalization"];
+            KVPair<double, double>[] model = ModelFunction((double)parameters["left"], (double)parameters["right"], (int)parameters["quality"]);
+            Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
+            double left = (double)parameters["left"];
+            double right = (double)parameters["right"];
+            double stretch = detalization / (right - left);
+            double key_step = model[1].Key - model[0].Key;
+            int il, ir, im;
+            for (ulong iteration = 0; iteration < randCount; iteration++) {
+                double rand = random.NextDouble();
+                il = 0;
+                ir = model.Length - 1;
+                im = (il + ir) / 2;
+                while (ir - il > 1) {
+                    if (rand >= model[im].Value) {
+                        il = im;
+                    } else {
+                        ir = im;
+                    }
+                    im = (il + ir) / 2;
+                }
+                double key = (rand - model[il].Value) / (model[ir].Value - model[il].Value) * key_step;
+                double simplified_key = Math.Floor((key - left) * stretch) / stretch + left;
+                if (sequence.ContainsKey(simplified_key)) {
+                    sequence[simplified_key]++;
+                } else {
+                    sequence.Add(key, 1);
+                }
+            }
+            return sequence;
+        }
+    }
 
-    //    public VectorCustomGenerator() {
-    //        parameterNames = new string[] {
-    //            "left",
-    //            "right",
-    //            "scale",
-    //            "shift",
-    //            "accuracy"
-    //        };
-    //        parameterlabels = new string[] {
-    //            "[", // левостороннее крайнее значение
-    //            "]", // правостороннее крайнее значение
-    //            "↔", // приближение
-    //            "→", // сдвиг
-    //            "⨯" // точность
-    //        };
-    //        defaultValues = new decimal[] {
-    //            0M, // left
-    //            100M, // right
-    //            10M, // scale
-    //            0M, // shift
-    //            1M // accuracy
-    //        };
-    //        parameterInputs = new NumericUpDown[parameterNames.Length];
-    //        int[] parameterDecPlaces = new int[] { 3, 3, 3, 3, 3 };
-    //        for (int i = 0; i < parameterNames.Length; i++) {
-    //            parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], null, null);
-    //        }
-    //    }
+    class VCustomSinGenerator : VectorCustomGenerator {
 
-    //    public override Dictionary<int, ulong> Sequence(ulong randCount, Dictionary<string, double> parameters) {
-    //        return new Dictionary<int, ulong> { };
-    //    }
-    //}
+        protected override double CoreFunction(double x) {
+            return Math.Sin(x) + 1;
+        }
+    }
 }
