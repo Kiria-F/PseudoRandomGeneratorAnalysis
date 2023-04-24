@@ -28,7 +28,6 @@ namespace PseudoRandomGeneratorAnalysis {
             //BaseChart.ChartAreas["Graphic"].AxisX.Minimum = 0;
             //BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
 
-            // Now there are 2 generators
             generators = new Generator[] {
                 new SlowNormalGenerator(),
                 new FastNormalGenerator(),
@@ -302,7 +301,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 Label inputLabel = new Label();
                 inputLabel.Name = "InputLabel_" + parameterNames[i];
                 inputLabel.Text = parameterlabels[i] + " ";
-                inputLabel.Dock = System.Windows.Forms.DockStyle.Left;
+                inputLabel.Dock = System.Windows.Forms.DockStyle.Top;
                 inputLabel.Size = new System.Drawing.Size(25, 22);
 
                 container[i].Controls.Add(parameterInputs[i]);
@@ -598,8 +597,7 @@ namespace PseudoRandomGeneratorAnalysis {
     abstract class CustomGenerator : Generator {
 
         protected KVPair<double, double>[] ModelFunction(double left, double right, int detalization) {
-            double step = (right - left) / detalization;
-            right += step / 2;
+            double step = (right - left) / (detalization - 1);
 
             KVPair<double, double>[] model = new KVPair<double, double>[detalization];
             double yLast = 0;
@@ -638,7 +636,7 @@ namespace PseudoRandomGeneratorAnalysis {
             };
             defaultValues = new decimal[] {
                 0M,
-                100M,
+                10M,
                 100M
             };
             parameterInputs = new NumericUpDown[parameterNames.Length];
@@ -721,12 +719,12 @@ namespace PseudoRandomGeneratorAnalysis {
             };
             defaultValues = new decimal[] {
                 0M,
-                100M,
                 10M,
+                100M,
                 100M,
             };
             parameterInputs = new NumericUpDown[parameterNames.Length];
-            int[] parameterDecPlaces = new int[] { 3, 3, 3, 3, 3 };
+            int[] parameterDecPlaces = new int[] { 3, 3, 0, 0 };
             for (int i = 0; i < parameterNames.Length; i++) {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], null, null);
             }
@@ -754,12 +752,12 @@ namespace PseudoRandomGeneratorAnalysis {
                     }
                     im = (il + ir) / 2;
                 }
-                double key = (rand - model[il].Value) / (model[ir].Value - model[il].Value) * key_step;
+                double key = (rand - model[il].Value) / (model[ir].Value - model[il].Value) * key_step + model[il].Key;
                 double simplified_key = Math.Floor((key - left) * stretch) / stretch + left;
                 if (sequence.ContainsKey(simplified_key)) {
                     sequence[simplified_key]++;
                 } else {
-                    sequence.Add(key, 1);
+                    sequence.Add(simplified_key, 1);
                 }
             }
             return sequence;
