@@ -70,33 +70,34 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ClearCharts() {
-            BaseChart.Series.Clear();
+            DistributionChart.Series.Clear();
         }
 
         private void AddDataToChart(Dictionary<double, ulong> data, ulong randCount) {
-            System.Windows.Forms.DataVisualization.Charting.Series seriesH = new System.Windows.Forms.DataVisualization.Charting.Series();
-            seriesH.ChartArea = "Histogram";
-            //seriesH.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
-            seriesH.Name = "histogram" + BaseChart.Series.Count;
-            seriesH.YValuesPerPoint = 2;
+            System.Windows.Forms.DataVisualization.Charting.Series seriesD = new System.Windows.Forms.DataVisualization.Charting.Series();
+            seriesD.ChartArea = "DistributionArea";
+            //seriesD.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
+            seriesD.Name = "distribution_" + DistributionChart.Series.Count;
+            seriesD.YValuesPerPoint = 2;
             foreach (KeyValuePair<double, ulong> i in data) {
-                seriesH.Points.AddXY(i.Key, (double)i.Value / randCount);
+                seriesD.Points.AddXY(i.Key, (double)i.Value / randCount);
             }
-            BaseChart.Series.Add(seriesH);
-            System.Windows.Forms.DataVisualization.Charting.Series seriesG = new System.Windows.Forms.DataVisualization.Charting.Series();
-            seriesG.BackSecondaryColor = System.Drawing.Color.White;
-            seriesG.BorderColor = System.Drawing.Color.White;
-            seriesG.BorderWidth = 2;
-            seriesG.ChartArea = "Graphic";
-            seriesG.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StepLine;
-            //seriesG.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            seriesG.Name = "graphic" + BaseChart.Series.Count;
+            DistributionChart.Series.Add(seriesD);
+
+            System.Windows.Forms.DataVisualization.Charting.Series seriesI = new System.Windows.Forms.DataVisualization.Charting.Series();
+            seriesI.BackSecondaryColor = System.Drawing.Color.White;
+            seriesI.BorderColor = System.Drawing.Color.White;
+            seriesI.BorderWidth = 2;
+            seriesI.ChartArea = "IntegralArea";
+            seriesI.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StepLine;
+            //seriesI.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            seriesI.Name = "integral_" + DistributionChart.Series.Count;
             ulong graphIncr = 0;
             foreach (KeyValuePair<double, ulong> i in data.OrderBy(i => i.Key)) {
                 graphIncr += i.Value;
-                seriesG.Points.AddXY(i.Key, (double)graphIncr / randCount);
+                seriesI.Points.AddXY(i.Key, (double)graphIncr / randCount);
             }
-            BaseChart.Series.Add(seriesG);
+            IntegralChart.Series.Add(seriesI);
         }
 
         private void CalcStats(Dictionary<double, ulong> data, ulong randCount) {
@@ -154,7 +155,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
                 });
             }).ContinueWith((task) => {
-                SafeInvoke(BaseChart, () => {
+                SafeInvoke(DistributionChart, () => {
                     if (rerun) {
                         ClearCharts();
                     }
@@ -322,9 +323,24 @@ namespace PseudoRandomGeneratorAnalysis {
             }
             return dSequence;
         }
+
+        protected double Gauss(double x, double si, double m) {
+            double a = 1d / si / Math.Sqrt(2 * Math.PI);
+            double z = -1d / 2 / si / si;
+            x -= m;
+            return a * Math.Pow(Math.E, x * x * z);
+        }
+
+        protected abstract double CoreFunction(double x, Dictionary<string, decimal> parameters = null);
     }
 
-    class SlowNormalGenerator : Generator {
+    abstract class NormalGenerator : Generator {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+            return Gauss(x, (double)parameters["si"], (double)parameters["m"]);
+        }
+    }
+
+    class SlowNormalGenerator : NormalGenerator {
 
         public SlowNormalGenerator() {
             parameterNames = new string[] {
@@ -418,7 +434,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class FastNormalGenerator : Generator {
+    class FastNormalGenerator : NormalGenerator {
 
         public FastNormalGenerator() {
             parameterNames = new string[] {
@@ -493,7 +509,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class CustomNormalGenerator : Generator
+    class CustomNormalGenerator : NormalGenerator
     {
         public CustomNormalGenerator()
         {
@@ -523,7 +539,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
             }
         }
-
+        
         private double[] ModelFunction(int left, int right, double si, double m)
         {
             Func<double, double> coreFunction;
@@ -617,8 +633,6 @@ namespace PseudoRandomGeneratorAnalysis {
             }
             return model;
         }
-
-        protected abstract double CoreFunction(double x);
     }
 
     abstract class RasterCustomGenerator : CustomGenerator {
@@ -676,28 +690,28 @@ namespace PseudoRandomGeneratorAnalysis {
 
     class CustomSinGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x) {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
             return Math.Sin(x) + 1;
         }
     }
 
     class CustomLogGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x) {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
             return Math.Log(x + 1);
         }
     }
 
     class CustomSqrGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x) {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
             return x * x;
         }
     }
 
     class Custom2PowerGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x) {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
             return Math.Pow(Math.E, x);
         }
     }
@@ -766,7 +780,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
     class VCustomSinGenerator : VectorCustomGenerator {
 
-        protected override double CoreFunction(double x) {
+        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
             return Math.Sin(x) + 1;
         }
     }
