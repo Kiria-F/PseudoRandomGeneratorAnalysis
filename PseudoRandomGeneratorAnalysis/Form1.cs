@@ -106,6 +106,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         private void AddQualityDataToChart(Dictionary<double, ulong> data, ulong randCount, Generator generator) {
             System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            QualityChart.ChartAreas.First().AxisY.Maximum = DistributionChart.ChartAreas.First().AxisY.Maximum;
             newSeries.ChartArea = "QualityArea";
             //newSeries.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
             newSeries.Name = "quality_" + QualityChart.Series.Count;
@@ -125,8 +126,9 @@ namespace PseudoRandomGeneratorAnalysis {
                 }
             }
 
+            double scaler = (double)maxValue / randCount;
             foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
-                double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue);
+                double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue) * scaler;
                 newSeries.Points.AddXY(i.Key, difference);
             }
             QualityChart.Series.Add(newSeries);
