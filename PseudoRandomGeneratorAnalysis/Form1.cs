@@ -71,35 +71,67 @@ namespace PseudoRandomGeneratorAnalysis {
 
         private void ClearCharts() {
             DistributionChart.Series.Clear();
+            IntegralChart.Series.Clear();
+            QualityChart.Series.Clear();
         }
 
-        private void AddDataToChart(Dictionary<double, ulong> data, ulong randCount) {
-            System.Windows.Forms.DataVisualization.Charting.Series seriesD = new System.Windows.Forms.DataVisualization.Charting.Series();
-            seriesD.ChartArea = "DistributionArea";
-            //seriesD.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
-            seriesD.Name = "distribution_" + DistributionChart.Series.Count;
-            seriesD.YValuesPerPoint = 2;
+        private void AddDistributionDataToChart(Dictionary<double, ulong> data, ulong randCount) {
+            System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            newSeries.ChartArea = "DistributionArea";
+            //newSeries.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
+            newSeries.Name = "distribution_" + DistributionChart.Series.Count;
+            newSeries.YValuesPerPoint = 2;
             foreach (KeyValuePair<double, ulong> i in data) {
-                seriesD.Points.AddXY(i.Key, (double)i.Value / randCount);
+                newSeries.Points.AddXY(i.Key, (double)i.Value / randCount);
             }
-            DistributionChart.Series.Add(seriesD);
+            DistributionChart.Series.Add(newSeries);
+        }
 
-            System.Windows.Forms.DataVisualization.Charting.Series seriesI = new System.Windows.Forms.DataVisualization.Charting.Series();
-            seriesI.BackSecondaryColor = System.Drawing.Color.White;
-            seriesI.BorderColor = System.Drawing.Color.White;
-            seriesI.BorderWidth = 2;
-            seriesI.ChartArea = "IntegralArea";
-            seriesI.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StepLine;
-            //seriesI.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            seriesI.Name = "integral_" + DistributionChart.Series.Count;
+        private void AddIntegralDataToChart(Dictionary<double, ulong> data, ulong randCount) {
+            System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            newSeries.BackSecondaryColor = System.Drawing.Color.White;
+            newSeries.BorderColor = System.Drawing.Color.White;
+            newSeries.BorderWidth = 2;
+            newSeries.ChartArea = "IntegralArea";
+            newSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.StepLine;
+            //newSeries.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            newSeries.Name = "integral_" + IntegralChart.Series.Count;
             ulong graphIncr = 0;
             foreach (KeyValuePair<double, ulong> i in data.OrderBy(i => i.Key)) {
                 graphIncr += i.Value;
-                seriesI.Points.AddXY(i.Key, (double)graphIncr / randCount);
+                newSeries.Points.AddXY(i.Key, (double)graphIncr / randCount);
             }
-            IntegralChart.Series.Add(seriesI);
+            IntegralChart.Series.Add(newSeries);
         }
 
+        private void AddQualityDataToChart(Dictionary<double, ulong> data, ulong randCount, Generator generator) {
+            System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            newSeries.ChartArea = "QualityArea";
+            //newSeries.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
+            newSeries.Name = "quality_" + QualityChart.Series.Count;
+            newSeries.YValuesPerPoint = 2;
+
+            double maxPerfectValue = 0;
+            ulong maxValue = 0;
+            Dictionary<double, KVPair<ulong, double>> comparasions = new Dictionary<double, KVPair<ulong, double>>();
+            foreach (KeyValuePair<double, ulong> i in data) {
+                double perfectValue = generator.CoreFunction(i.Key);
+                comparasions.Add(i.Key, new KVPair<ulong, double>(i.Value, perfectValue));
+                if (perfectValue > maxPerfectValue) {
+                    maxPerfectValue = perfectValue;
+                }
+                if (i.Value > maxValue) {
+                    maxValue = i.Value;
+                }
+            }
+
+            foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
+                double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue);
+                newSeries.Points.AddXY(i.Key, difference);
+            }
+            QualityChart.Series.Add(newSeries);
+        }
+        
         private void CalcStats(Dictionary<double, ulong> data, ulong randCount) {
             double m = 0, d = 0;
             foreach (KeyValuePair<double, ulong> i in data) {
@@ -127,8 +159,8 @@ namespace PseudoRandomGeneratorAnalysis {
 
         private void Run(bool rerun) {
             ulong randCount = (ulong)InputCount.Value;
-            int generatorIndex = GeneratorChoose.SelectedIndex;
-            Dictionary<string, decimal> parameters = generators[generatorIndex].CollectParameterValues();
+            Generator generator = generators[GeneratorChoose.SelectedIndex];
+            generator.CollectParameterValues();
             Dictionary<double, ulong> data = null;
             int seconds1 = 0;
             int millis1 = 0;
@@ -144,7 +176,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 seconds1 = DateTime.Now.Second;
                 millis1 = DateTime.Now.Millisecond;
             }).ContinueWith((task) => {
-                data = generators[generatorIndex].Sequence(randCount, parameters);
+                data = generator.Sequence(randCount);
             }).ContinueWith((task) => {
                 seconds2 = DateTime.Now.Second;
                 millis2 = DateTime.Now.Millisecond;
@@ -155,11 +187,22 @@ namespace PseudoRandomGeneratorAnalysis {
                     LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
                 });
             }).ContinueWith((task) => {
-                SafeInvoke(DistributionChart, () => {
+                SafeInvoke(ChartsSplitContainer, () => {
                     if (rerun) {
                         ClearCharts();
                     }
-                    AddDataToChart(data, randCount);
+                });
+            }).ContinueWith((task) => {
+                SafeInvoke(DistributionChart, () => {
+                    AddDistributionDataToChart(data, randCount);
+                });
+            }).ContinueWith((task) => {
+                SafeInvoke(IntegralChart, () => {
+                    AddIntegralDataToChart(data, randCount);
+                });
+            }).ContinueWith((task) => {
+                SafeInvoke(QualityChart, () => {
+                    AddQualityDataToChart(data, randCount, generator);
                 });
             }).ContinueWith((task) => {
                 SafeInvoke(StaticInfo, () => {
@@ -265,6 +308,7 @@ namespace PseudoRandomGeneratorAnalysis {
         public string[] parameterlabels;
         public decimal[] defaultValues;
         public NumericUpDown[] parameterInputs;
+        protected Dictionary<string, decimal> parameters = new Dictionary<string, decimal>();
 
         protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
             if (!min.HasValue) min = decimal.MinValue;
@@ -281,12 +325,11 @@ namespace PseudoRandomGeneratorAnalysis {
             return input;
         }
 
-        public Dictionary<string, decimal> CollectParameterValues() {
-            Dictionary<string, decimal> parameters = new Dictionary<string, decimal>();
+        public void CollectParameterValues() {
+            parameters.Clear();
             for (int i = 0; i < parameterInputs.Count(); i++) {
                 parameters.Add(parameterNames[i], parameterInputs[i].Value);
             }
-            return parameters;
         }
 
         public Panel[] GenerateCompleteInputs() {
@@ -311,12 +354,12 @@ namespace PseudoRandomGeneratorAnalysis {
             return container;
         }
 
-        public virtual Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+        public virtual Dictionary<int, ulong> ISequence(ulong randCount) {
             return null;
         }
 
-        public virtual Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
-            Dictionary<int, ulong> iSequence = ISequence(randCount, parameters);
+        public virtual Dictionary<double, ulong> Sequence(ulong randCount) {
+            Dictionary<int, ulong> iSequence = ISequence(randCount);
             Dictionary<double, ulong> dSequence = new Dictionary<double, ulong>();
             foreach(KeyValuePair<int, ulong> kvp in iSequence) {
                 dSequence.Add(kvp.Key, kvp.Value);
@@ -331,11 +374,11 @@ namespace PseudoRandomGeneratorAnalysis {
             return a * Math.Pow(Math.E, x * x * z);
         }
 
-        protected abstract double CoreFunction(double x, Dictionary<string, decimal> parameters = null);
+        public abstract double CoreFunction(double x);
     }
 
     abstract class NormalGenerator : Generator {
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return Gauss(x, (double)parameters["si"], (double)parameters["m"]);
         }
     }
@@ -422,7 +465,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+        public override Dictionary<int, ulong> ISequence(ulong randCount) {
             double parameter_n = (double)parameters["n"];
             double parameter_si = (double)parameters["si"];
             double parameter_m = (double)parameters["m"];
@@ -484,7 +527,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return sum / n;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters) {
+        public override Dictionary<int, ulong> ISequence(ulong randCount) {
             double parameter_n = (double)parameters["n"];
             double parameter_a = (double)parameters["a"];
             double parameter_b = (double)parameters["b"];
@@ -569,7 +612,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return model;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount, Dictionary<string, decimal> parameters)
+        public override Dictionary<int, ulong> ISequence(ulong randCount)
         {
             int parameter_left = (int)((double)parameters["left"] + 0.5);
             int parameter_right = (int)((double)parameters["right"] + 0.5) + 2;
@@ -660,7 +703,7 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        public override Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
+        public override Dictionary<double, ulong> Sequence(ulong randCount) {
             KVPair<double, double>[] model = ModelFunction((double)parameters["left"], (double)parameters["right"], (int)parameters["detalization"]);
             Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
             int il, ir, im;
@@ -690,28 +733,28 @@ namespace PseudoRandomGeneratorAnalysis {
 
     class CustomSinGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return Math.Sin(x) + 1;
         }
     }
 
     class CustomLogGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return Math.Log(x + 1);
         }
     }
 
     class CustomSqrGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return x * x;
         }
     }
 
     class Custom2PowerGenerator : RasterCustomGenerator {
 
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return Math.Pow(Math.E, x);
         }
     }
@@ -744,7 +787,7 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        public override Dictionary<double, ulong> Sequence(ulong randCount, Dictionary<string, decimal> parameters) {
+        public override Dictionary<double, ulong> Sequence(ulong randCount) {
             int detalization = (int)parameters["detalization"];
             KVPair<double, double>[] model = ModelFunction((double)parameters["left"], (double)parameters["right"], (int)parameters["quality"]);
             Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
@@ -780,7 +823,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
     class VCustomSinGenerator : VectorCustomGenerator {
 
-        protected override double CoreFunction(double x, Dictionary<string, decimal> parameters = null) {
+        public override double CoreFunction(double x) {
             return Math.Sin(x) + 1;
         }
     }
