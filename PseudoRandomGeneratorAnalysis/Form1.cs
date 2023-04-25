@@ -105,12 +105,21 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void AddQualityDataToChart(Dictionary<double, ulong> data, ulong randCount, Generator generator) {
-            System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
             QualityChart.ChartAreas.First().AxisY.Maximum = DistributionChart.ChartAreas.First().AxisY.Maximum;
-            newSeries.ChartArea = "QualityArea";
-            //newSeries.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
-            newSeries.Name = "quality_" + QualityChart.Series.Count;
-            newSeries.YValuesPerPoint = 2;
+
+            System.Windows.Forms.DataVisualization.Charting.Series differenceSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            differenceSeries.ChartArea = "QualityArea";
+            differenceSeries.Name = "difference_" + QualityChart.Series.Count;
+            differenceSeries.YValuesPerPoint = 2;
+
+            System.Windows.Forms.DataVisualization.Charting.Series perfectSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            perfectSeries.ChartArea = "DistributionArea";
+            perfectSeries.Name = "perfect_" + QualityChart.Series.Count;
+            perfectSeries.YValuesPerPoint = 2;
+            perfectSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            perfectSeries.Color = Color.Blue;
+            perfectSeries.BorderWidth= 2;
+            perfectSeries.Enabled = false;
 
             double maxPerfectValue = 0;
             ulong maxValue = 0;
@@ -129,9 +138,12 @@ namespace PseudoRandomGeneratorAnalysis {
             double scaler = (double)maxValue / randCount;
             foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
                 double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue) * scaler;
-                newSeries.Points.AddXY(i.Key, difference);
+                differenceSeries.Points.AddXY(i.Key, difference);
+                perfectSeries.Points.AddXY(i.Key, i.Value.Value / maxPerfectValue * scaler);
             }
-            QualityChart.Series.Add(newSeries);
+            QualityChart.Series.Add(differenceSeries);
+            perfectSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
+            DistributionChart.Series.Add(perfectSeries);
         }
         
         private void CalcStats(Dictionary<double, ulong> data, ulong randCount) {
@@ -272,6 +284,14 @@ namespace PseudoRandomGeneratorAnalysis {
             Panel[] inputsContainer = generators[currentIndex].GenerateCompleteInputs();
             for (int i = inputsContainer.Length - 1; i >= 0; i--) {
                 InputContainer.Controls.Add(inputsContainer[i]);
+            }
+        }
+
+        private void ShowFunctionCheckBox_CheckedChanged(object sender, EventArgs e) {
+            int seriesCount = DistributionChart.Series.Count / 2;
+            for (int i = 0; i < seriesCount; i++) {
+                string seriesName = "perfect_" + i;
+                DistributionChart.Series[seriesName].Enabled = ((CheckBox)sender).Checked;
             }
         }
     }

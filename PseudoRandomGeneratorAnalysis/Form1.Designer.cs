@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea13 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea15 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea14 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.ControlPanel = new System.Windows.Forms.Panel();
             this.buttonsContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonRun = new System.Windows.Forms.Button();
@@ -70,6 +70,8 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.IntegralChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.ShowFunctionCheckBox = new System.Windows.Forms.CheckBox();
             this.QualityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -95,6 +97,7 @@
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IntegralChart)).BeginInit();
             this.tabPage4.SuspendLayout();
+            this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.QualityChart)).BeginInit();
             this.TabControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -522,19 +525,19 @@
             // 
             // DistributionChart
             // 
-            chartArea4.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea4.AxisX.Minimum = 0D;
-            chartArea4.AxisX.Title = "x";
-            chartArea4.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea4.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea4.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea4.AxisY.Minimum = 0D;
-            chartArea4.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea4.AxisY.Title = "f(x)";
-            chartArea4.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea4.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea4.Name = "DistributionArea";
-            this.DistributionChart.ChartAreas.Add(chartArea4);
+            chartArea13.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea13.AxisX.Minimum = 0D;
+            chartArea13.AxisX.Title = "x";
+            chartArea13.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea13.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea13.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea13.AxisY.Minimum = 0D;
+            chartArea13.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea13.AxisY.Title = "f(x)";
+            chartArea13.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea13.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea13.Name = "DistributionArea";
+            this.DistributionChart.ChartAreas.Add(chartArea13);
             this.DistributionChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DistributionChart.Location = new System.Drawing.Point(0, 0);
             this.DistributionChart.Margin = new System.Windows.Forms.Padding(4);
@@ -568,20 +571,20 @@
             // 
             // IntegralChart
             // 
-            chartArea5.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea5.AxisX.Minimum = 0D;
-            chartArea5.AxisX.Title = "x";
-            chartArea5.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea5.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea5.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea5.AxisY.Maximum = 1D;
-            chartArea5.AxisY.Minimum = 0D;
-            chartArea5.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea5.AxisY.Title = "F(x)";
-            chartArea5.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea5.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea5.Name = "IntegralArea";
-            this.IntegralChart.ChartAreas.Add(chartArea5);
+            chartArea15.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea15.AxisX.Minimum = 0D;
+            chartArea15.AxisX.Title = "x";
+            chartArea15.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea15.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea15.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea15.AxisY.Maximum = 1D;
+            chartArea15.AxisY.Minimum = 0D;
+            chartArea15.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea15.AxisY.Title = "F(x)";
+            chartArea15.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea15.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea15.Name = "IntegralArea";
+            this.IntegralChart.ChartAreas.Add(chartArea15);
             this.IntegralChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IntegralChart.Location = new System.Drawing.Point(3, 3);
             this.IntegralChart.Margin = new System.Windows.Forms.Padding(4);
@@ -593,6 +596,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.panel2);
             this.tabPage4.Controls.Add(this.QualityChart);
             this.tabPage4.Location = new System.Drawing.Point(4, 31);
             this.tabPage4.Name = "tabPage4";
@@ -602,21 +606,42 @@
             this.tabPage4.Text = "Качество";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.ShowFunctionCheckBox);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(3, 321);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(968, 32);
+            this.panel2.TabIndex = 4;
+            // 
+            // ShowFunctionCheckBox
+            // 
+            this.ShowFunctionCheckBox.AutoSize = true;
+            this.ShowFunctionCheckBox.Dock = System.Windows.Forms.DockStyle.Left;
+            this.ShowFunctionCheckBox.Location = new System.Drawing.Point(0, 0);
+            this.ShowFunctionCheckBox.Name = "ShowFunctionCheckBox";
+            this.ShowFunctionCheckBox.Size = new System.Drawing.Size(191, 32);
+            this.ShowFunctionCheckBox.TabIndex = 2;
+            this.ShowFunctionCheckBox.Text = "Показать функцию";
+            this.ShowFunctionCheckBox.UseVisualStyleBackColor = true;
+            this.ShowFunctionCheckBox.CheckedChanged += new System.EventHandler(this.ShowFunctionCheckBox_CheckedChanged);
+            // 
             // QualityChart
             // 
-            chartArea6.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea6.AxisX.Minimum = 0D;
-            chartArea6.AxisX.Title = "x";
-            chartArea6.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea6.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea6.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea6.AxisY.Minimum = 0D;
-            chartArea6.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea6.AxisY.Title = "f(x)";
-            chartArea6.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea6.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea6.Name = "QualityArea";
-            this.QualityChart.ChartAreas.Add(chartArea6);
+            chartArea14.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea14.AxisX.Minimum = 0D;
+            chartArea14.AxisX.Title = "x";
+            chartArea14.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea14.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea14.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea14.AxisY.Minimum = 0D;
+            chartArea14.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea14.AxisY.Title = "f(x)";
+            chartArea14.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea14.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea14.Name = "QualityArea";
+            this.QualityChart.ChartAreas.Add(chartArea14);
             this.QualityChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.QualityChart.Location = new System.Drawing.Point(3, 3);
             this.QualityChart.Margin = new System.Windows.Forms.Padding(4);
@@ -694,6 +719,8 @@
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.IntegralChart)).EndInit();
             this.tabPage4.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.QualityChart)).EndInit();
             this.TabControl.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -747,6 +774,8 @@
         private System.Windows.Forms.SplitContainer ChartsSplitContainer;
         private System.Windows.Forms.DataVisualization.Charting.Chart IntegralChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart QualityChart;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.CheckBox ShowFunctionCheckBox;
     }
 }
 
