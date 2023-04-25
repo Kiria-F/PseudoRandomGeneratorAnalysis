@@ -220,34 +220,6 @@ namespace PseudoRandomGeneratorAnalysis {
             Run(false);
         }
 
-        //private void ButtonRun_Click_OLD(object sender, EventArgs e) {
-
-        //    EnableControls(false);
-
-        //    ulong randCount = (ulong)InputCount.Value;
-        //    int generatorIndex = GeneratorChoose.SelectedIndex;
-        //    Dictionary<string, decimal> parameters = generators[generatorIndex].CollectParameterValues();
-        //    Dictionary<int, ulong> data = null;
-        //    Task task = new Task(() => { data = generators[generatorIndex].Sequence(randCount, parameters); });
-
-        //    int seconds1 = DateTime.Now.Second;
-        //    int millis1 = DateTime.Now.Millisecond;
-
-        //    task.Start();
-        //    //Dictionary<int, ulong> data = generators[generatorIndex].Sequence(randCount, parameters);
-
-        //    int seconds2 = DateTime.Now.Second;
-        //    int millis2 = DateTime.Now.Millisecond;
-        //    if (seconds2 < seconds1) {
-        //        seconds2 += 60;
-        //    }
-        //    LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
-
-        //    AddDataToChart(data, randCount);
-        //    CalcStats(data, randCount);
-        //    EnableControls(true);
-        //}
-
         private void ConsoleSetProgress(int val1000) {
             if (val1000 == lastProgressVal) {
                 return;
