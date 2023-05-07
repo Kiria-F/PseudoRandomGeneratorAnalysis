@@ -372,60 +372,32 @@ namespace PseudoRandomGeneratorAnalysis {
             return a * Math.Pow(Math.E, x * x * z);
         }
 
-        public abstract double Next();
-    }
+        public abstract void Prepare();
 
-    abstract class NormalGenerator : Generator {
-        protected double parameter_m;
-        protected double parameter_si;
-        public override double CoreFunction(double x) {
-            return Gauss(x, (double)parameters["si"], (double)parameters["m"]);
-        }
+        public abstract double Next();
     }
 
     abstract class CLTGenerator : Generator {
         protected double parameter_n;
+
+        protected double NormalNext(double n) {
+            double sum = 0;
+            for (int i = 0; i < (int)n; i++) {
+                sum += random.NextDouble();
+            }
+            double rest = (n - (int)n) * random.NextDouble();
+            sum += rest;
+            return sum / n;
+        }
 
         public CLTGenerator() : base() {
             AddNewControl("Исп. последовательности", "n", 10M, 3);
         }
     }
 
-    class SlowNormalGenerator : NormalGenerator {
+    class GrandCLTGenerator : CLTGenerator {
 
-        public SlowNormalGenerator() {
-            parameterNames = new string[] {
-                "si", // ср. кв. отклонение
-                "m", // мат. ожидание
-                "n" // кол-во использемых равномерных последовательностей
-            };
-            parameterlabels = new string[] {
-                "σ", // ср. кв. отклонение
-                "m", // мат. ожидание
-                "n" // кол-во использемых равномерных последовательностей
-            };
-            defaultValues = new decimal[] {
-                10M, // si
-                50M, // m
-                12M // n
-            };
-            parameterInputs = new NumericUpDown[parameterNames.Count()];
-            decimal?[] minVals = { 0M, null, 0M };
-            int[] parameterDecPlaces = new int[] { 3, 3, 3 };
-            for (int i = 0; i < parameterNames.Length; i++) {
-                parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
-            }
-        }
-
-        private double NormalNext(double parameter_n) {
-            double sum = 0;
-            for (int i = 0; i < (int)parameter_n; i++) {
-                sum += random.NextDouble();
-            }
-            double rest = (parameter_n - (int)(parameter_n)) * random.NextDouble();
-            sum += rest;
-            return sum / parameter_n;
-        }
+        public GrandCLTGenerator() : base() { }
 
         private double CalcPreSi(Dictionary<double, ulong> preData) {
             double pre_m = 0, pre_d = 0;
@@ -441,7 +413,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return Math.Sqrt(pre_d);
         }
 
-        private Dictionary<double, ulong> NormalSequence(ulong randCount, double parameter_n) {
+        private Dictionary<double, ulong> NormalSequence(ulong randCount) {
             Dictionary<double, ulong> data = new Dictionary<double, ulong>();
             for (ulong i = 0; i < randCount; i++) {
                 double x = NormalNext(parameter_n);
@@ -454,16 +426,16 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        private int Modificate(double x, double pre_si, double parameter_si, double parameter_m) {
+        private double Modificate(double x, double pre_si) {
             double t = (x - 0.5f) * parameter_si / pre_si + parameter_m;
             if (t < 0) t -= 1;
-            return (int)t;
+            return t;
         }
 
-        private Dictionary<int, ulong> ModificateSequence(Dictionary<double, ulong> preData, double preSi, double parameter_si, double parameter_m) {
-            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
+        private Dictionary<double, ulong> ModificateSequence(Dictionary<double, ulong> preData, double preSi) {
+            Dictionary<double, ulong> data = new Dictionary<double, ulong>();
             foreach (KeyValuePair<double, ulong> kvp in preData) {
-                int t = Modificate(kvp.Key, preSi, parameter_si, parameter_m); // 1 -> preSi
+                double t = Modificate(kvp.Key, preSi); // 1 -> preSi
                 if (data.ContainsKey(t)) {
                     data[t] += kvp.Value;
                 } else {
@@ -473,90 +445,51 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount) {
-            double parameter_n = (double)parameters["n"];
-            double parameter_si = (double)parameters["si"];
-            double parameter_m = (double)parameters["m"];
-
-            Dictionary<double, ulong> preData = NormalSequence(randCount, parameter_n);
+        public override Dictionary<double, ulong> Sequence(ulong randCount) {
+            Dictionary<double, ulong> preData = NormalSequence(randCount);
             double preSi = CalcPreSi(preData);
-            Dictionary<int, ulong> data = ModificateSequence(preData, preSi, parameter_si, parameter_m);
+            Dictionary<double, ulong> data = ModificateSequence(preData, preSi);
             return data;
+        }
+
+        public override void Prepare() { }
+
+        public override double Next() {
+            throw new NotImplementedException();
         }
     }
 
-    class FastNormalGenerator : NormalGenerator {
+    class ConstNCLTGenerator : CLTGenerator {
+        protected double parameter_a;
+        protected double parameter_b;
 
-        public FastNormalGenerator() {
-            parameterNames = new string[] {
-                "si", // ср. кв. отклонение
-                "m", // мат. ожидание
-                "n", // кол-во использемых равномерных последовательностей
-                "a", // вспом. параметр a
-                "b" // вспом. параметр b
-            };
-            parameterlabels = new string[] {
-                "σ", // ср. кв. отклонение
-                "m", // мат. ожидание
-                "n", // кол-во использемых равномерных последовательностей
-                "a", // вспом. параметр a
-                "b" // вспом. параметр b
-            };
-            defaultValues = new decimal[] {
-                10M, // si
-                50M, // m
-                12M, // n
-                0.288077825M, // a
-                -0.4988888129M // b
-            };
-            parameterInputs = new NumericUpDown[parameterNames.Count()];
-            decimal?[] minVals = { 0M, null, 0M, null, null };
-            int[] parameterDecPlaces = new int[] { 3, 3, 3, 9, 9 };
-            for (int i = 0; i < parameterNames.Length; i++) {
-                parameterInputs[i] = ConstructInput(parameterNames[i], defaultValues[i], parameterDecPlaces[i], minVals[i], null);
-            }
+        public ConstNCLTGenerator() : base() {
+            AddNewControl("параметр a", "a", 0.288077825M, 9);
+            AddNewControl("параметр b", "b", -0.4988888129M, 9);
         }
 
-        private int? Modificate(double x, double preSi, double si, double m) {
-            double t = (x - 0.5f) * si / preSi + m;
-            if (t < 0) t -= 1;
-            if (t < int.MinValue) return null;
-            if (t > int.MaxValue) return null;
-            return (int)t;
+        private double Modificate(double x, double preSi, double si, double m) {
+            return (x - 0.5f) * si / preSi + m;
         }
 
-        private double NormalNext(double n) {
-            double sum = 0;
-            for (int i = 0; i < (int)n; i++) {
-                sum += random.NextDouble();
-            }
-            double rest = (n - (int)n) * random.NextDouble();
-            sum += rest;
-            return sum / n;
-        }
-
-        public override Dictionary<int, ulong> ISequence(ulong randCount) {
-            double parameter_n = (double)parameters["n"];
-            double parameter_a = (double)parameters["a"];
-            double parameter_b = (double)parameters["b"];
-            double parameter_si = (double)parameters["si"];
-            double parameter_m = (double)parameters["m"];
-
-            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
+        public override Dictionary<double, ulong> Sequence(ulong randCount) {
+            Dictionary<double, ulong> data = new Dictionary<double, ulong>();
 
             double preSi = parameter_a * Math.Pow(parameter_n, parameter_b);
 
             for (ulong i = 0; i < randCount; i++) {
-                int? x = Modificate(NormalNext(parameter_n), preSi, parameter_si, parameter_m);
-                if (x.HasValue) {
-                    if (data.ContainsKey(x.Value)) {
-                        data[x.Value]++;
-                    } else {
-                        data.Add(x.Value, 1);
-                    }
+                double x = Modificate(NormalNext(parameter_n), preSi, parameter_si, parameter_m);
+                if (data.ContainsKey(x)) {
+                    data[x]++;
+                } else {
+                    data.Add(x, 1);
                 }
             }
             return data;
+        }
+
+        public override double Next() {
+            return Modificate(NormalNext(parameter_n), preSi, parameter_si, parameter_m);
         }
     }
 
