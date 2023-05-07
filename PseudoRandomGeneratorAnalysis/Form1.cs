@@ -380,14 +380,14 @@ namespace PseudoRandomGeneratorAnalysis {
     abstract class CLTGenerator : Generator {
         protected double parameter_n;
 
-        protected double NormalNext(double n) {
+        protected double NormalNext() {
             double sum = 0;
-            for (int i = 0; i < (int)n; i++) {
+            for (int i = 0; i < (int)parameter_n; i++) {
                 sum += random.NextDouble();
             }
-            double rest = (n - (int)n) * random.NextDouble();
+            double rest = (parameter_n - (int)parameter_n) * random.NextDouble();
             sum += rest;
-            return sum / n;
+            return sum / parameter_n;
         }
 
         public CLTGenerator() : base() {
@@ -416,7 +416,7 @@ namespace PseudoRandomGeneratorAnalysis {
         private Dictionary<double, ulong> NormalSequence(ulong randCount) {
             Dictionary<double, ulong> data = new Dictionary<double, ulong>();
             for (ulong i = 0; i < randCount; i++) {
-                double x = NormalNext(parameter_n);
+                double x = NormalNext();
                 if (data.ContainsKey(x)) {
                     data[x]++;
                 } else {
@@ -462,14 +462,15 @@ namespace PseudoRandomGeneratorAnalysis {
     class ConstNCLTGenerator : CLTGenerator {
         protected double parameter_a;
         protected double parameter_b;
+        protected double preSi;
 
         public ConstNCLTGenerator() : base() {
             AddNewControl("параметр a", "a", 0.288077825M, 9);
             AddNewControl("параметр b", "b", -0.4988888129M, 9);
         }
 
-        private double Modificate(double x, double preSi, double si, double m) {
-            return (x - 0.5f) * si / preSi + m;
+        private double Modificate(double x) {
+            return (x - 0.5f) * parameter_si / preSi + parameter_m;
         }
 
         public override Dictionary<double, ulong> Sequence(ulong randCount) {
@@ -488,13 +489,17 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
+        public override void Prepare() {
+            preSi = parameter_a * Math.Pow(parameter_n, parameter_b);
+        }
+
         public override double Next() {
-            return Modificate(NormalNext(parameter_n), preSi, parameter_si, parameter_m);
+            return Modificate(NormalNext());
         }
     }
 
-    class CustomNormalGenerator : NormalGenerator
-    {
+    class CustomNormalGenerator : NormalGenerator {
+
         public CustomNormalGenerator()
         {
             parameterNames = new string[] {
