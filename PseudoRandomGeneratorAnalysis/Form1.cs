@@ -298,54 +298,61 @@ namespace PseudoRandomGeneratorAnalysis {
 
     abstract class Generator {
         protected Random random = new Random();
-        public string[] parameterNames;
-        public string[] parameterlabels;
-        public decimal[] defaultValues;
-        public NumericUpDown[] parameterInputs;
-        protected Dictionary<string, decimal> parameters = new Dictionary<string, decimal>();
+        protected Dictionary<string, Panel> controls;
+        protected double parameter_m;
+        protected double parameter_si;
+
+        public Generator() {
+            controls = new Dictionary<string, Panel>();
+            AddNewControl("Мат. ожидание", "m", 50M, 3);
+            AddNewControl("СКв отклонение", "si", 10M, 3, 0M);
+        }
 
         protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
             if (!min.HasValue) min = decimal.MinValue;
             if (!max.HasValue) max = decimal.MaxValue;
 
-            NumericUpDown input = new NumericUpDown();
-            input.Name = "input_" + name;
-            input.DecimalPlaces = quality;
-            input.AutoSize = true;
-            input.Dock = System.Windows.Forms.DockStyle.Fill;
-            input.Minimum = min.Value;
-            input.Maximum = max.Value;
-            input.Value = defaultValue;
-            return input;
+            NumericUpDown newInput = new NumericUpDown();
+            newInput.Name = "input_" + name;
+            newInput.DecimalPlaces = quality;
+            newInput.AutoSize = true;
+            newInput.Dock = System.Windows.Forms.DockStyle.Fill;
+            newInput.Minimum = min.Value;
+            newInput.Maximum = max.Value;
+            newInput.Value = defaultValue;
+            newInput.Tag = defaultValue;
+            return newInput;
+        }
+
+        protected Panel ConstructControl(string label, NumericUpDown newInput) {
+            string namePostfix = newInput.Name.Substring(newInput.Name.LastIndexOf("_"));
+            Panel newPanel = new Panel();
+            newPanel.AutoSize = true;
+            newPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            newPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            newPanel.Name = "panelInput_" + namePostfix;
+            newPanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 6);
+
+            Label inputLabel = new Label();
+            inputLabel.Name = "InputLabel_" + namePostfix;
+            inputLabel.Text = label + " ";
+            inputLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            inputLabel.Size = new System.Drawing.Size(25, 22);
+
+            newPanel.Controls.Add(newInput);
+            newPanel.Tag = newInput;
+            newPanel.Controls.Add(inputLabel);
+            return newPanel
+        }
+
+        protected void AddNewControl(string label, string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
+            NumericUpDown newInput = ConstructInput(name, defaultValue, quality, min, max);
+            Panel newControl = ConstructControl(label, newInput);
+            controls.Add(name, newControl);
         }
 
         public void CollectParameterValues() {
-            parameters.Clear();
-            for (int i = 0; i < parameterInputs.Count(); i++) {
-                parameters.Add(parameterNames[i], parameterInputs[i].Value);
-            }
-        }
-
-        public Panel[] GenerateCompleteInputs() {
-            Panel[] container = new Panel[parameterInputs.Count()];
-            for (int i = 0; i < container.Length; i++) {
-                container[i] = new Panel();
-                container[i].AutoSize = true;
-                container[i].AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-                container[i].Dock = System.Windows.Forms.DockStyle.Top;
-                container[i].Name = "panelInput_" + parameterNames[i];
-                container[i].Padding = new System.Windows.Forms.Padding(0, 0, 0, 6);
-
-                Label inputLabel = new Label();
-                inputLabel.Name = "InputLabel_" + parameterNames[i];
-                inputLabel.Text = parameterlabels[i] + " ";
-                inputLabel.Dock = System.Windows.Forms.DockStyle.Top;
-                inputLabel.Size = new System.Drawing.Size(25, 22);
-
-                container[i].Controls.Add(parameterInputs[i]);
-                container[i].Controls.Add(inputLabel);
-            }
-            return container;
+            parameter_m_raw = controls["m"].
         }
 
         public virtual Dictionary<int, ulong> ISequence(ulong randCount) {
@@ -369,9 +376,13 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public abstract double CoreFunction(double x);
+
+        // public abstract double Next();
     }
 
     abstract class NormalGenerator : Generator {
+        protected double parameter_m;
+        protected double parameter_si;
         public override double CoreFunction(double x) {
             return Gauss(x, (double)parameters["si"], (double)parameters["m"]);
         }
@@ -722,6 +733,18 @@ namespace PseudoRandomGeneratorAnalysis {
                 }
             }
             return sequence;
+        }
+    }
+
+    class RasterNormalGenerator : RasterCustomGenerator {
+
+        public 
+            override double CoreFunction(double x) {
+            double a = 1d / parameter_si / Math.Sqrt(2 * Math.PI);
+            double b = parameter_m;
+            double c = parameter_si;
+            double z = -1d / 2 / c / c;
+            coreFunction = (x) => { x -= b; return a * Math.Pow(Math.E, x * x * z); };
         }
     }
 
