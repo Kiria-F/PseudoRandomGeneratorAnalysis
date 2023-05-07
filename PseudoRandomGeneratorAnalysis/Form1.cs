@@ -29,25 +29,13 @@ namespace PseudoRandomGeneratorAnalysis {
             //BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
 
             generators = new Generator[] {
-                new SlowNormalGenerator(),
-                new FastNormalGenerator(),
-                new CustomNormalGenerator(),
-                new CustomSinGenerator(),
-                new CustomLogGenerator(),
-                new CustomSqrGenerator(),
-                new Custom2PowerGenerator(),
-                new VCustomSinGenerator()
+                new GrandCLTGenerator(),
+                new ConstNCLTGenerator()
             };
 
             GeneratorChoose.Items.AddRange(new string[] {
-                "Нормальное распр.",
-                "Нормальное распр. уск.",
-                "Каст. нормальное распр.",
-                "Синусоидальное распр.",
-                "Логарифмическое распр.",
-                "Квадратичное распр.",
-                "Показательное распр.",
-                "Новый синус"
+                "Идеальный генератор",
+                "Ускоренный генератор"
             });
 
             GeneratorChoose.SelectedIndex = 0;
@@ -259,8 +247,9 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ButtonReset_Click(object sender, EventArgs e) {
-            for (int i = 0; i < generators[GeneratorChoose.SelectedIndex].parameterInputs.Length; i++) {
-                generators[GeneratorChoose.SelectedIndex].parameterInputs[i].Value = generators[GeneratorChoose.SelectedIndex].defaultValues[i];
+            foreach (KeyValuePair<string, Panel> controlWrapper in generators[GeneratorChoose.SelectedIndex].controls) {
+                NumericUpDown input = controlWrapper.Value.Tag as NumericUpDown;
+                input.Value = (decimal)input.Tag;
             }
         }
 
@@ -272,8 +261,9 @@ namespace PseudoRandomGeneratorAnalysis {
             ButtonReset.Enabled = isEnabled;
             InputCount.Enabled = isEnabled;
             GeneratorChoose.Enabled = isEnabled;
-            for (int i = 0; i < generators[GeneratorChoose.SelectedIndex].parameterInputs.Length; i++) {
-                generators[GeneratorChoose.SelectedIndex].parameterInputs[i].Enabled = isEnabled;
+            foreach (KeyValuePair<string, Panel> controlWrapper in generators[GeneratorChoose.SelectedIndex].controls) {
+                NumericUpDown inputContainer = controlWrapper.Value.Tag as NumericUpDown;
+                inputContainer.Enabled = isEnabled;
             }
         }
 
@@ -281,9 +271,8 @@ namespace PseudoRandomGeneratorAnalysis {
             ComboBox currentSender = (ComboBox)sender;
             int currentIndex = currentSender.SelectedIndex;
             InputContainer.Controls.Clear();
-            Panel[] inputsContainer = generators[currentIndex].GenerateCompleteInputs();
-            for (int i = inputsContainer.Length - 1; i >= 0; i--) {
-                InputContainer.Controls.Add(inputsContainer[i]);
+            foreach (KeyValuePair<string, Panel> controlWrapper in generators[currentIndex].controls) {
+                InputContainer.Controls.Add(controlWrapper.Value);
             }
         }
 
@@ -298,7 +287,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
     abstract class Generator {
         protected Random random = new Random();
-        protected Dictionary<string, Panel> controls;
+        public Dictionary<string, Panel> controls;
         protected double parameter_m;
         protected double parameter_si;
 
@@ -342,7 +331,7 @@ namespace PseudoRandomGeneratorAnalysis {
             newPanel.Controls.Add(newInput);
             newPanel.Tag = newInput;
             newPanel.Controls.Add(inputLabel);
-            return newPanel
+            return newPanel;
         }
 
         protected void AddNewControl(string label, string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
@@ -365,7 +354,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return sequence;
         }
 
-        protected double Gauss(double x) {
+        public double CoreFunction(double x) {
             double a = 1d / parameter_si / Math.Sqrt(2 * Math.PI);
             double z = -1d / 2 / parameter_si / parameter_si;
             x -= parameter_m;
@@ -479,7 +468,7 @@ namespace PseudoRandomGeneratorAnalysis {
             double preSi = parameter_a * Math.Pow(parameter_n, parameter_b);
 
             for (ulong i = 0; i < randCount; i++) {
-                double x = Modificate(NormalNext(parameter_n), preSi, parameter_si, parameter_m);
+                double x = Modificate(NormalNext());
                 if (data.ContainsKey(x)) {
                     data[x]++;
                 } else {
@@ -497,7 +486,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return Modificate(NormalNext());
         }
     }
-
+    /*
     class CustomNormalGenerator : NormalGenerator {
 
         public CustomNormalGenerator()
@@ -784,5 +773,5 @@ namespace PseudoRandomGeneratorAnalysis {
         public override double CoreFunction(double x) {
             return Math.Sin(x) + 1;
         }
-    }
+    }*/
 }
