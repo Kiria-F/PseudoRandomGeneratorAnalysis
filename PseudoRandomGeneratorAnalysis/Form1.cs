@@ -352,32 +352,27 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public void CollectParameterValues() {
-            parameter_m_raw = controls["m"].
-        }
-
-        public virtual Dictionary<int, ulong> ISequence(ulong randCount) {
-            return null;
+            parameter_m = (double)(controls["m"].Tag as NumericUpDown).Value;
+            parameter_si = (double)(controls["si"].Tag as NumericUpDown).Value;
         }
 
         public virtual Dictionary<double, ulong> Sequence(ulong randCount) {
-            Dictionary<int, ulong> iSequence = ISequence(randCount);
-            Dictionary<double, ulong> dSequence = new Dictionary<double, ulong>();
-            foreach(KeyValuePair<int, ulong> kvp in iSequence) {
-                dSequence.Add(kvp.Key, kvp.Value);
+            Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
+            for (ulong i = 0; i < randCount; i++) {
+                double gen = Next();
+                sequence[gen] = sequence.TryGetValue(gen, out ulong count) ? count + 1 : 1;
             }
-            return dSequence;
+            return sequence;
         }
 
-        protected double Gauss(double x, double si, double m) {
-            double a = 1d / si / Math.Sqrt(2 * Math.PI);
-            double z = -1d / 2 / si / si;
-            x -= m;
+        protected double Gauss(double x) {
+            double a = 1d / parameter_si / Math.Sqrt(2 * Math.PI);
+            double z = -1d / 2 / parameter_si / parameter_si;
+            x -= parameter_m;
             return a * Math.Pow(Math.E, x * x * z);
         }
 
-        public abstract double CoreFunction(double x);
-
-        // public abstract double Next();
+        public abstract double Next();
     }
 
     abstract class NormalGenerator : Generator {
@@ -385,6 +380,14 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double parameter_si;
         public override double CoreFunction(double x) {
             return Gauss(x, (double)parameters["si"], (double)parameters["m"]);
+        }
+    }
+
+    abstract class CLTGenerator : Generator {
+        protected double parameter_n;
+
+        public CLTGenerator() : base() {
+            AddNewControl("Исп. последовательности", "n", 10M, 3);
         }
     }
 
