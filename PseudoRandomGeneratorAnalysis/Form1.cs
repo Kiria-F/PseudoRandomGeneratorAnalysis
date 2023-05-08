@@ -63,19 +63,19 @@ namespace PseudoRandomGeneratorAnalysis {
             QualityChart.Series.Clear();
         }
 
-        private void AddDistributionDataToChart(Dictionary<double, ulong> data, ulong randCount) {
+        private void AddDistributionDataToChart(Dictionary<int, ulong> data, ulong randCount) {
             System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
             newSeries.ChartArea = "DistributionArea";
             //newSeries.LabelForeColor = System.Drawing.Color.BlanchedAlmond;
             newSeries.Name = "distribution_" + DistributionChart.Series.Count;
             newSeries.YValuesPerPoint = 2;
-            foreach (KeyValuePair<double, ulong> i in data) {
+            foreach (KeyValuePair<int, ulong> i in data) {
                 newSeries.Points.AddXY(i.Key, (double)i.Value / randCount);
             }
             DistributionChart.Series.Add(newSeries);
         }
 
-        private void AddIntegralDataToChart(Dictionary<double, ulong> data, ulong randCount) {
+        private void AddIntegralDataToChart(Dictionary<int, ulong> data, ulong randCount) {
             System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
             newSeries.BackSecondaryColor = System.Drawing.Color.White;
             newSeries.BorderColor = System.Drawing.Color.White;
@@ -85,14 +85,14 @@ namespace PseudoRandomGeneratorAnalysis {
             //newSeries.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
             newSeries.Name = "integral_" + IntegralChart.Series.Count;
             ulong graphIncr = 0;
-            foreach (KeyValuePair<double, ulong> i in data.OrderBy(i => i.Key)) {
+            foreach (KeyValuePair<int, ulong> i in data.OrderBy(i => i.Key)) {
                 graphIncr += i.Value;
                 newSeries.Points.AddXY(i.Key, (double)graphIncr / randCount);
             }
             IntegralChart.Series.Add(newSeries);
         }
 
-        private void AddQualityDataToChart(Dictionary<double, ulong> data, ulong randCount, Generator generator) {
+        private void AddQualityDataToChart(Dictionary<int, ulong> data, ulong randCount, Generator generator) {
             QualityChart.ChartAreas.First().AxisY.Maximum = DistributionChart.ChartAreas.First().AxisY.Maximum;
 
             System.Windows.Forms.DataVisualization.Charting.Series differenceSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
@@ -112,7 +112,7 @@ namespace PseudoRandomGeneratorAnalysis {
             double maxPerfectValue = 0;
             ulong maxValue = 0;
             Dictionary<double, KVPair<ulong, double>> comparasions = new Dictionary<double, KVPair<ulong, double>>();
-            foreach (KeyValuePair<double, ulong> i in data) {
+            foreach (KeyValuePair<int, ulong> i in data) {
                 double perfectValue = generator.CoreFunction(i.Key);
                 comparasions.Add(i.Key, new KVPair<ulong, double>(i.Value, perfectValue));
                 if (perfectValue > maxPerfectValue) {
@@ -134,20 +134,20 @@ namespace PseudoRandomGeneratorAnalysis {
             DistributionChart.Series.Add(perfectSeries);
         }
         
-        private void CalcStats(Dictionary<double, ulong> data, ulong randCount) {
+        private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
             double m = 0, d = 0;
-            foreach (KeyValuePair<double, ulong> i in data) {
+            foreach (KeyValuePair<int, ulong> i in data) {
                 m += (double)i.Key * i.Value;
             }
             m /= randCount;
-            foreach (KeyValuePair<double, ulong> i in data) {
+            foreach (KeyValuePair<int, ulong> i in data) {
                 double underSqr = (double)i.Key - m;
                 d += underSqr * underSqr * i.Value;
             }
             d /= randCount;
             double si = Math.Sqrt(d), si3 = si * 3, leftBorder = m - si3, rightBorder = m + si3;
             double outOf3Si = 0;
-            foreach (KeyValuePair<double, ulong> i in data) {
+            foreach (KeyValuePair<int, ulong> i in data) {
                 if (i.Key <= leftBorder || i.Key >= rightBorder) {
                     outOf3Si += i.Value;
                 }
@@ -163,7 +163,7 @@ namespace PseudoRandomGeneratorAnalysis {
             ulong randCount = (ulong)InputCount.Value;
             Generator generator = generators[GeneratorChoose.SelectedIndex];
             generator.CollectParameterValues();
-            Dictionary<double, ulong> data = null;
+            Dictionary<int, ulong> data = null;
             int seconds1 = 0;
             int millis1 = 0;
             int seconds2 = 0;
@@ -178,7 +178,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 seconds1 = DateTime.Now.Second;
                 millis1 = DateTime.Now.Millisecond;
             }).ContinueWith((task) => {
-                data = generator.Sequence(randCount);
+                data = generator.ISequence(randCount, 0, 100);
             }).ContinueWith((task) => {
                 seconds2 = DateTime.Now.Second;
                 millis2 = DateTime.Now.Millisecond;
@@ -340,16 +340,23 @@ namespace PseudoRandomGeneratorAnalysis {
             controls.Add(name, newControl);
         }
 
-        public void CollectParameterValues() {
+        public virtual void CollectParameterValues() {
             parameter_m = (double)(controls["m"].Tag as NumericUpDown).Value;
             parameter_si = (double)(controls["si"].Tag as NumericUpDown).Value;
         }
 
-        public virtual Dictionary<double, ulong> Sequence(ulong randCount) {
-            Dictionary<double, ulong> sequence = new Dictionary<double, ulong>();
+        public virtual Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
+            Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
                 double gen = Next();
-                sequence[gen] = sequence.TryGetValue(gen, out ulong count) ? count + 1 : 1;
+                if (gen < -0.5) {
+                    gen -= 1;
+                }
+                int iGen = (int)(gen + 0.5D);
+                if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
+                    sequence[iGen] = sequence.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
+                }
+                
             }
             return sequence;
         }
@@ -368,6 +375,11 @@ namespace PseudoRandomGeneratorAnalysis {
 
     abstract class CLTGenerator : Generator {
         protected double parameter_n;
+
+        public override void CollectParameterValues() {
+            base.CollectParameterValues();
+            parameter_n = (double)(controls["n"].Tag as NumericUpDown).Value;
+        }
 
         protected double NormalNext() {
             double sum = 0;
@@ -415,29 +427,29 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        private double Modificate(double x, double pre_si) {
-            double t = (x - 0.5f) * parameter_si / pre_si + parameter_m;
-            if (t < 0) t -= 1;
-            return t;
+        private int Modificate2I(double x, double pre_si) {
+            double gen = x * parameter_si / pre_si + parameter_m;
+            if (gen < -0.5) {
+                gen -= 1;
+            }
+            return (int)(gen + 0.5D);
         }
 
-        private Dictionary<double, ulong> ModificateSequence(Dictionary<double, ulong> preData, double preSi) {
-            Dictionary<double, ulong> data = new Dictionary<double, ulong>();
+        private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData, double preSi, int leftEdge, int rightEdge) {
+            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
             foreach (KeyValuePair<double, ulong> kvp in preData) {
-                double t = Modificate(kvp.Key, preSi); // 1 -> preSi
-                if (data.ContainsKey(t)) {
-                    data[t] += kvp.Value;
-                } else {
-                    data.Add(t, kvp.Value);
+                int iGen = Modificate2I(kvp.Key, preSi); // 1 -> preSi
+                if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
+                    data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + kvp.Value : kvp.Value;
                 }
             }
             return data;
         }
 
-        public override Dictionary<double, ulong> Sequence(ulong randCount) {
+        public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<double, ulong> preData = NormalSequence(randCount);
             double preSi = CalcPreSi(preData);
-            Dictionary<double, ulong> data = ModificateSequence(preData, preSi);
+            Dictionary<int, ulong> data = ModificateSequence2I(preData, preSi, leftEdge, rightEdge);
             return data;
         }
 
@@ -458,21 +470,29 @@ namespace PseudoRandomGeneratorAnalysis {
             AddNewControl("параметр b", "b", -0.4988888129M, 9);
         }
 
+        public override void CollectParameterValues() {
+            base.CollectParameterValues();
+            parameter_a = (double)(controls["a"].Tag as NumericUpDown).Value;
+            parameter_b = (double)(controls["b"].Tag as NumericUpDown).Value;
+        }
+
         private double Modificate(double x) {
             return (x - 0.5f) * parameter_si / preSi + parameter_m;
         }
 
-        public override Dictionary<double, ulong> Sequence(ulong randCount) {
-            Dictionary<double, ulong> data = new Dictionary<double, ulong>();
+        public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
+            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
 
             double preSi = parameter_a * Math.Pow(parameter_n, parameter_b);
 
             for (ulong i = 0; i < randCount; i++) {
-                double x = Modificate(NormalNext());
-                if (data.ContainsKey(x)) {
-                    data[x]++;
-                } else {
-                    data.Add(x, 1);
+                double gen = Modificate(NormalNext());
+                if (gen < -0.5) {
+                    gen -= 1;
+                }
+                int iGen = (int)(gen + 0.5D);
+                if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
+                    data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
                 }
             }
             return data;
