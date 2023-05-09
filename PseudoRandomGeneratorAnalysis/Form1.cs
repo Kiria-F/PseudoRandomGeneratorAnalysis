@@ -133,7 +133,7 @@ namespace PseudoRandomGeneratorAnalysis {
             perfectSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
             DistributionChart.Series.Add(perfectSeries);
         }
-        
+
         private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
             double m = 0, d = 0;
             foreach (KeyValuePair<int, ulong> i in data) {
@@ -175,6 +175,8 @@ namespace PseudoRandomGeneratorAnalysis {
                 });
             });
             firstTask.ContinueWith((task) => {
+                generator.Prepare();
+            }).ContinueWith((task) => {
                 seconds1 = DateTime.Now.Second;
                 millis1 = DateTime.Now.Millisecond;
             }).ContinueWith((task) => {
@@ -304,6 +306,7 @@ namespace PseudoRandomGeneratorAnalysis {
             NumericUpDown newInput = new NumericUpDown();
             newInput.Name = "input_" + name;
             newInput.DecimalPlaces = quality;
+            newInput.Increment = (decimal)(1D / Math.Pow(10, quality));
             newInput.AutoSize = true;
             newInput.Dock = System.Windows.Forms.DockStyle.Fill;
             newInput.Minimum = min.Value;
@@ -397,10 +400,11 @@ namespace PseudoRandomGeneratorAnalysis {
     }
 
     class GrandCLTGenerator : CLTGenerator {
+        protected double preSi;
 
         public GrandCLTGenerator() : base() { }
 
-        private double CalcPreSi(Dictionary<double, ulong> preData) {
+        private void CalcPreSi(Dictionary<double, ulong> preData) {
             double pre_m = 0, pre_d = 0;
             foreach (KeyValuePair<double, ulong> kvp in preData) {
                 pre_m += kvp.Key * kvp.Value;
@@ -411,7 +415,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 pre_d += underSqr * underSqr * kvp.Value;
             }
             pre_d /= preData.Count;
-            return Math.Sqrt(pre_d);
+            preSi = Math.Sqrt(pre_d);
         }
 
         private Dictionary<double, ulong> NormalSequence(ulong randCount) {
@@ -427,18 +431,18 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        private int Modificate2I(double x, double pre_si) {
-            double gen = x * parameter_si / pre_si + parameter_m;
+        private int Modificate2I(double x) {
+            double gen = (x - 0.5D) * parameter_si / preSi + parameter_m;
             if (gen < -0.5) {
                 gen -= 1;
             }
             return (int)(gen + 0.5D);
         }
 
-        private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData, double preSi, int leftEdge, int rightEdge) {
+        private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData, int leftEdge, int rightEdge) {
             Dictionary<int, ulong> data = new Dictionary<int, ulong>();
             foreach (KeyValuePair<double, ulong> kvp in preData) {
-                int iGen = Modificate2I(kvp.Key, preSi); // 1 -> preSi
+                int iGen = Modificate2I(kvp.Key); // 1 -> preSi
                 if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
                     data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + kvp.Value : kvp.Value;
                 }
@@ -448,8 +452,8 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<double, ulong> preData = NormalSequence(randCount);
-            double preSi = CalcPreSi(preData);
-            Dictionary<int, ulong> data = ModificateSequence2I(preData, preSi, leftEdge, rightEdge);
+            CalcPreSi(preData);
+            Dictionary<int, ulong> data = ModificateSequence2I(preData, leftEdge, rightEdge);
             return data;
         }
 
@@ -477,7 +481,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private double Modificate(double x) {
-            return (x - 0.5f) * parameter_si / preSi + parameter_m;
+            return (x - 0.5D) * parameter_si / preSi + parameter_m;
         }
 
         public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
