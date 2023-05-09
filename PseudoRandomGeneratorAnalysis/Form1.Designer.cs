@@ -60,10 +60,10 @@
             this.panelInputSi = new System.Windows.Forms.Panel();
             this.InputCount = new System.Windows.Forms.NumericUpDown();
             this.LabelInputSi = new System.Windows.Forms.Label();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.ConsolePage = new System.Windows.Forms.TabPage();
             this.MyConsole = new System.Windows.Forms.RichTextBox();
             this.MyConsoleProgressBar = new System.Windows.Forms.ProgressBar();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.DistributionAnalysisPage = new System.Windows.Forms.TabPage();
             this.ChartsSplitContainer = new System.Windows.Forms.SplitContainer();
             this.DistributionChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -86,8 +86,8 @@
             this.panel1.SuspendLayout();
             this.panelInputSi.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.InputCount)).BeginInit();
-            this.tabPage2.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.ConsolePage.SuspendLayout();
+            this.DistributionAnalysisPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChartsSplitContainer)).BeginInit();
             this.ChartsSplitContainer.Panel1.SuspendLayout();
             this.ChartsSplitContainer.Panel2.SuspendLayout();
@@ -459,15 +459,15 @@
             this.LabelInputSi.TabIndex = 1;
             this.LabelInputSi.Text = "N ";
             // 
-            // tabPage2
+            // ConsolePage
             // 
-            this.tabPage2.Controls.Add(this.MyConsole);
-            this.tabPage2.Controls.Add(this.MyConsoleProgressBar);
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(990, 720);
-            this.tabPage2.TabIndex = 0;
-            this.tabPage2.Text = "Консоль";
+            this.ConsolePage.Controls.Add(this.MyConsole);
+            this.ConsolePage.Controls.Add(this.MyConsoleProgressBar);
+            this.ConsolePage.Location = new System.Drawing.Point(4, 31);
+            this.ConsolePage.Name = "ConsolePage";
+            this.ConsolePage.Size = new System.Drawing.Size(990, 714);
+            this.ConsolePage.TabIndex = 0;
+            this.ConsolePage.Text = "Консоль";
             // 
             // MyConsole
             // 
@@ -479,30 +479,30 @@
             this.MyConsole.Name = "MyConsole";
             this.MyConsole.ReadOnly = true;
             this.MyConsole.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.MyConsole.Size = new System.Drawing.Size(990, 697);
+            this.MyConsole.Size = new System.Drawing.Size(990, 691);
             this.MyConsole.TabIndex = 0;
             this.MyConsole.Text = "";
             // 
             // MyConsoleProgressBar
             // 
             this.MyConsoleProgressBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.MyConsoleProgressBar.Location = new System.Drawing.Point(0, 697);
+            this.MyConsoleProgressBar.Location = new System.Drawing.Point(0, 691);
             this.MyConsoleProgressBar.Maximum = 1000;
             this.MyConsoleProgressBar.Name = "MyConsoleProgressBar";
             this.MyConsoleProgressBar.Size = new System.Drawing.Size(990, 23);
             this.MyConsoleProgressBar.TabIndex = 1;
             // 
-            // tabPage1
+            // DistributionAnalysisPage
             // 
-            this.tabPage1.Controls.Add(this.ChartsSplitContainer);
-            this.tabPage1.Location = new System.Drawing.Point(4, 31);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(990, 714);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Анализ распределения";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.DistributionAnalysisPage.Controls.Add(this.ChartsSplitContainer);
+            this.DistributionAnalysisPage.Location = new System.Drawing.Point(4, 31);
+            this.DistributionAnalysisPage.Margin = new System.Windows.Forms.Padding(4);
+            this.DistributionAnalysisPage.Name = "DistributionAnalysisPage";
+            this.DistributionAnalysisPage.Padding = new System.Windows.Forms.Padding(4);
+            this.DistributionAnalysisPage.Size = new System.Drawing.Size(990, 714);
+            this.DistributionAnalysisPage.TabIndex = 0;
+            this.DistributionAnalysisPage.Text = "Анализ распределения";
+            this.DistributionAnalysisPage.UseVisualStyleBackColor = true;
             // 
             // ChartsSplitContainer
             // 
@@ -654,8 +654,8 @@
             // 
             // TabControl
             // 
-            this.TabControl.Controls.Add(this.tabPage1);
-            this.TabControl.Controls.Add(this.tabPage2);
+            this.TabControl.Controls.Add(this.DistributionAnalysisPage);
+            this.TabControl.Controls.Add(this.ConsolePage);
             this.TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TabControl.Location = new System.Drawing.Point(0, 0);
             this.TabControl.Margin = new System.Windows.Forms.Padding(4);
@@ -709,8 +709,8 @@
             this.panelInputSi.ResumeLayout(false);
             this.panelInputSi.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.InputCount)).EndInit();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.ConsolePage.ResumeLayout(false);
+            this.DistributionAnalysisPage.ResumeLayout(false);
             this.ChartsSplitContainer.Panel1.ResumeLayout(false);
             this.ChartsSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ChartsSplitContainer)).EndInit();
@@ -753,10 +753,10 @@
         private System.Windows.Forms.Button ButtonSave;
         private System.Windows.Forms.Label LabelTime;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage ConsolePage;
         private System.Windows.Forms.ProgressBar MyConsoleProgressBar;
         private System.Windows.Forms.RichTextBox MyConsole;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage DistributionAnalysisPage;
         private System.Windows.Forms.DataVisualization.Charting.Chart DistributionChart;
         private System.Windows.Forms.TabControl TabControl;
         private System.Windows.Forms.GroupBox groupBox1;
