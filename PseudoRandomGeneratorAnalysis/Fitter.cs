@@ -9,13 +9,13 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PseudoRandomGeneratorAnalysis {
-    internal class Fitter {
-        private readonly Random random = new Random();
-        public int gensCount = 100;
-        public int genSize = 150;
-        public int selectedGenSize = 30;
+    internal static class Fitter {
+        private static readonly Random random = new Random();
+        public static int gensCount = 100;
+        public static int genSize = 150;
+        public static int selectedGenSize = 30;
 
-        public double[] Fit( double[] paramNames, double[] minVals, double[] maxVals, Func<double[], double> minFun, Action<string> logsOutput, Action<double> progressOutput) {
+        public static double[] Fit( double[] paramNames, double[] minVals, double[] maxVals, Func<double[], double> minFun, Action<string> logsOutput, Action<double> progressOutput) {
             int paramsCount = paramNames.Length;
             Sheep[] generation = new Sheep[genSize];
             for (int sheepI = 0; sheepI < genSize; sheepI++) {
@@ -66,7 +66,10 @@ namespace PseudoRandomGeneratorAnalysis {
                     Sheep sheepB = selection[random.Next(selection.Length)];
                     generation[i] = Sheep.Reproduce(sheepA, sheepB);
                 }
+                progressOutput((double)genI / gensCount);
             }
+            logsOutput("\n\n  << DONE >>\n");
+            progressOutput(0D);
             return leader.parameters;
         }
     }

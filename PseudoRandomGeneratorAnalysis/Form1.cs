@@ -286,49 +286,15 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ButtonTest_Click(object sender, EventArgs e) {
-            Task mainTask = new Task(() => {
-                using (StreamWriter output = new StreamWriter("output.txt")) {
-                    Random random = new Random();
-                    ulong quality = 1000000;
-                    for (double n = 0.1; n < 100D; n += 0.1D) {
-                        Dictionary<int, ulong> data = new Dictionary<int, ulong>();
-                        for (ulong i = 0; i < quality; i++) {
-                            double gen = 0;
-                            ulong iN = (ulong)n;
-                            for (ulong j = 0; j < iN; j++) {
-                                gen += random.NextDouble();
-                            }
-                            double rest = (n - iN) * random.NextDouble();
-                            gen += rest;
+            Fitter.Fit(
+                new string[] { "A", "B", "c" },
+                new double[] { 0, -1, -5 },
+                new double[] { 1, 0, 5 },
+                (double[] parameters) => {
 
-                            if (gen < -0.5D) {
-                                gen -= 1;
-                            }
-                            int iGen = (int)gen;
-
-                            data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
-                        }
-                        double m = 0, d = 0;
-                        foreach (KeyValuePair<int, ulong> i in data) {
-                            m += (double)i.Key * i.Value;
-                        }
-                        m /= quality;
-                        foreach (KeyValuePair<int, ulong> i in data) {
-                            double underSqr = (double)i.Key - m;
-                            d += underSqr * underSqr * i.Value;
-                        }
-                        d /= quality;
-                        double si = Math.Sqrt(d);
-
-                        SafeInvoke(MyConsole, () => {
-                            ConsoleWrite(n.ToString() + " : " + si.ToString() + "\n");
-                            ConsoleSetProgress((int)(n * 10D));
-                        });
-                        output.WriteLine(n.ToString() + ", " + si.ToString());
-                    }
-                }
-            });
-            mainTask.Start();
+                },
+                ConsoleWrite,
+                (double val1) => { ConsoleSetProgress((int)(val1 * 1000D)); });
         }
 
 
@@ -395,6 +361,19 @@ namespace PseudoRandomGeneratorAnalysis {
         public virtual void CollectParameterValues() {
             parameter_m = (double)(controls["m"].Tag as NumericUpDown).Value;
             parameter_si = (double)(controls["si"].Tag as NumericUpDown).Value;
+        }
+
+        public virtual Dictionary<int, ulong> ISequence(ulong randCount) {
+            Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
+            for (ulong i = 0; i < randCount; i++) {
+                double gen = Next();
+                if (gen < -0.5) {
+                    gen -= 1;
+                }
+                int iGen = (int)(gen + 0.5D);
+                sequence[iGen] = sequence.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
+            }
+            return sequence;
         }
 
         public virtual Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
@@ -535,18 +514,27 @@ namespace PseudoRandomGeneratorAnalysis {
     class DynamicNCLTGenerator : Generator {
         protected double parameterA;
         protected double parameterB;
+        protected double parameterC;
         protected double calcedN;
 
         public DynamicNCLTGenerator() : base() {
             name = "Генератор на динамическом N";
             AddNewControl("параметр a", "a", 0.288077825M, 9);
             AddNewControl("параметр b", "b", -0.4988888129M, 9);
+            AddNewControl("параметр c", "c", 0M, 9);
         }
 
         public override void CollectParameterValues() {
             base.CollectParameterValues();
             parameterA = (double)(controls["a"].Tag as NumericUpDown).Value;
             parameterB = (double)(controls["b"].Tag as NumericUpDown).Value;
+            parameterC = (double)(controls["c"].Tag as NumericUpDown).Value;
+        }
+
+        public void SetParameters(double[] parameters) {
+            parameterA = parameters[0];
+            parameterB = parameters[1];
+            parameterC = parameters[2];
         }
 
         protected double NormalNext() {
@@ -561,8 +549,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            calcedN = Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
-            calcedN += 0;
+            calcedN = parameterC + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
         }
 
         public override double Next() {
