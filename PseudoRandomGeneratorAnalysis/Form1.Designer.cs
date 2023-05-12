@@ -159,8 +159,9 @@
             this.ButtonSave.Name = "ButtonSave";
             this.ButtonSave.Size = new System.Drawing.Size(99, 32);
             this.ButtonSave.TabIndex = 4;
-            this.ButtonSave.Text = "Сохр.";
+            this.ButtonSave.Text = "Тест";
             this.ButtonSave.UseVisualStyleBackColor = true;
+            this.ButtonSave.Click += new System.EventHandler(this.ButtonTest_Click);
             // 
             // ButtonClear
             // 
@@ -463,9 +464,9 @@
             // 
             this.ConsolePage.Controls.Add(this.MyConsole);
             this.ConsolePage.Controls.Add(this.MyConsoleProgressBar);
-            this.ConsolePage.Location = new System.Drawing.Point(4, 31);
+            this.ConsolePage.Location = new System.Drawing.Point(4, 25);
             this.ConsolePage.Name = "ConsolePage";
-            this.ConsolePage.Size = new System.Drawing.Size(990, 714);
+            this.ConsolePage.Size = new System.Drawing.Size(990, 720);
             this.ConsolePage.TabIndex = 0;
             this.ConsolePage.Text = "Консоль";
             // 
@@ -479,14 +480,14 @@
             this.MyConsole.Name = "MyConsole";
             this.MyConsole.ReadOnly = true;
             this.MyConsole.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.MyConsole.Size = new System.Drawing.Size(990, 691);
+            this.MyConsole.Size = new System.Drawing.Size(990, 697);
             this.MyConsole.TabIndex = 0;
             this.MyConsole.Text = "";
             // 
             // MyConsoleProgressBar
             // 
             this.MyConsoleProgressBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.MyConsoleProgressBar.Location = new System.Drawing.Point(0, 691);
+            this.MyConsoleProgressBar.Location = new System.Drawing.Point(0, 697);
             this.MyConsoleProgressBar.Maximum = 1000;
             this.MyConsoleProgressBar.Name = "MyConsoleProgressBar";
             this.MyConsoleProgressBar.Size = new System.Drawing.Size(990, 23);

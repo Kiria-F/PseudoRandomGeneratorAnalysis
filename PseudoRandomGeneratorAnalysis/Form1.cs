@@ -19,7 +19,11 @@ namespace PseudoRandomGeneratorAnalysis {
         private delegate void UniversalSafeCallDelegate(Control obj, Action act);
         private int lastProgressVal = -1;
 
-        private Generator[] generators;
+        private Generator[] generators = new Generator[] {
+            new GrandCLTGenerator(),
+            new DynamicNCLTGenerator(),
+            new ConstNCLTGenerator()
+        };
 
         public Form1() {
             InitializeComponent();
@@ -27,11 +31,6 @@ namespace PseudoRandomGeneratorAnalysis {
             //BaseChart.ChartAreas["Histogram"].AxisX.Maximum = 100;
             //BaseChart.ChartAreas["Graphic"].AxisX.Minimum = 0;
             //BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
-
-            generators = new Generator[] {
-                new GrandCLTGenerator(),
-                new ConstNCLTGenerator()
-            };
 
             foreach (Generator generator in generators) {
                 GeneratorChoose.Items.Add(generator.name);
@@ -104,7 +103,7 @@ namespace PseudoRandomGeneratorAnalysis {
             perfectSeries.YValuesPerPoint = 2;
             perfectSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             perfectSeries.Color = Color.Blue;
-            perfectSeries.BorderWidth= 2;
+            perfectSeries.BorderWidth = 2;
             perfectSeries.Enabled = false;
 
             double maxPerfectValue = 0;
@@ -230,12 +229,14 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ConsoleWrite(string text) {
-            if (MyConsole.InvokeRequired) {
-                MyConsole.Invoke(new SafeCallDelegate(ConsoleWrite), new object[] { text });
-            } else {
-                MyConsole.AppendText(text);
-                MyConsole.ScrollToCaret();
-            }
+            MyConsole.AppendText(text);
+            MyConsole.ScrollToCaret();
+            //if (MyConsole.InvokeRequired) {
+            //    MyConsole.Invoke(new SafeCallDelegate(ConsoleWrite), new object[] { text });
+            //} else {
+            //    MyConsole.AppendText(text);
+            //    MyConsole.ScrollToCaret();
+            //}
         }
 
         private void ButtonRerun_Click(object sender, EventArgs e) {
@@ -283,6 +284,54 @@ namespace PseudoRandomGeneratorAnalysis {
                 DistributionChart.Series[seriesName].Enabled = ((CheckBox)sender).Checked;
             }
         }
+
+        private void ButtonTest_Click(object sender, EventArgs e) {
+            Task mainTask = new Task(() => {
+                using (StreamWriter output = new StreamWriter("output.txt")) {
+                    Random random = new Random();
+                    ulong quality = 1000000;
+                    for (double n = 0.1; n < 100D; n += 0.1D) {
+                        Dictionary<int, ulong> data = new Dictionary<int, ulong>();
+                        for (ulong i = 0; i < quality; i++) {
+                            double gen = 0;
+                            ulong iN = (ulong)n;
+                            for (ulong j = 0; j < iN; j++) {
+                                gen += random.NextDouble();
+                            }
+                            double rest = (n - iN) * random.NextDouble();
+                            gen += rest;
+
+                            if (gen < -0.5D) {
+                                gen -= 1;
+                            }
+                            int iGen = (int)gen;
+
+                            data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
+                        }
+                        double m = 0, d = 0;
+                        foreach (KeyValuePair<int, ulong> i in data) {
+                            m += (double)i.Key * i.Value;
+                        }
+                        m /= quality;
+                        foreach (KeyValuePair<int, ulong> i in data) {
+                            double underSqr = (double)i.Key - m;
+                            d += underSqr * underSqr * i.Value;
+                        }
+                        d /= quality;
+                        double si = Math.Sqrt(d);
+
+                        SafeInvoke(MyConsole, () => {
+                            ConsoleWrite(n.ToString() + " : " + si.ToString() + "\n");
+                            ConsoleSetProgress((int)(n * 10D));
+                        });
+                        output.WriteLine(n.ToString() + ", " + si.ToString());
+                    }
+                }
+            });
+            mainTask.Start();
+        }
+
+
     }
 
     abstract class Generator {
@@ -351,7 +400,7 @@ namespace PseudoRandomGeneratorAnalysis {
         public virtual Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
-                double gen = Next();
+                double gen = Next() * (rightEdge - leftEdge) + leftEdge;
                 if (gen < -0.5) {
                     gen -= 1;
                 }
@@ -359,7 +408,6 @@ namespace PseudoRandomGeneratorAnalysis {
                 if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
                     sequence[iGen] = sequence.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
                 }
-                
             }
             return sequence;
         }
@@ -485,20 +533,26 @@ namespace PseudoRandomGeneratorAnalysis {
     }
 
     class DynamicNCLTGenerator : Generator {
+        protected double parameterA;
+        protected double parameterB;
         protected double calcedN;
 
         public DynamicNCLTGenerator() : base() {
-            name = "Подгон N";
+            name = "Генератор на динамическом N";
+            AddNewControl("параметр a", "a", 0.288077825M, 9);
+            AddNewControl("параметр b", "b", -0.4988888129M, 9);
         }
 
         public override void CollectParameterValues() {
             base.CollectParameterValues();
+            parameterA = (double)(controls["a"].Tag as NumericUpDown).Value;
+            parameterB = (double)(controls["b"].Tag as NumericUpDown).Value;
         }
 
         protected double NormalNext() {
             double sum = 0;
             ulong ICalcedN = (ulong)calcedN;
-            for (ulong i = 0; i < ICalcedN; i++) {
+            for (ulong i = 0; i < calcedN; i++) {
                 sum += random.NextDouble();
             }
             double rest = (calcedN - ICalcedN) * random.NextDouble();
@@ -506,9 +560,14 @@ namespace PseudoRandomGeneratorAnalysis {
             return sum;
         }
 
-        public override void Prepare() { }
+        public override void Prepare() {
+            calcedN = Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
+            calcedN += 0;
+        }
 
-        public override double Next() { throw new NotImplementedException(); }
+        public override double Next() {
+            return NormalNext() / calcedN;
+        }
     }
 
     class ConstNCLTGenerator : Generator {
@@ -518,7 +577,7 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double preSi;
 
         public ConstNCLTGenerator() : base() {
-            name = "Премутация";
+            name = "Генератор на ранней мутации";
             AddNewControl("параметр a", "a", 0.288077825M, 9);
             AddNewControl("параметр b", "b", -0.4988888129M, 9);
             AddNewControl("Исп. последовательности", "n", 10M, 3);
