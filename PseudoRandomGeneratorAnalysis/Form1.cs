@@ -292,9 +292,9 @@ namespace PseudoRandomGeneratorAnalysis {
             double[] fitResult;
             new Task(() => {
                 fitResult = Fitter.Fit(
-                    new string[] { "A", "B", "C" },
-                    new double[] { 0, -1, -5 },
-                    new double[] { 1, 0, 5 },
+                    new string[] { "a", "b", "c" },
+                    new double[] { 0, -100, -100 },
+                    new double[] { 100, 0, 100 },
                     (double[] parameters) => {
                         double loss = 0;
                         for (int controlI = 0; controlI < 10; controlI++) {
@@ -322,6 +322,13 @@ namespace PseudoRandomGeneratorAnalysis {
                     },
                     (double val1) => {
                         SafeInvoke(MyConsoleProgressBar, () => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000)));
+                    },
+                    (Dictionary<string, double> leaderParams) => {
+                        SafeInvoke(generatorParameters, () => {
+                            foreach (KeyValuePair<string, double> leaderParam in leaderParams) {
+                                ((NumericUpDown)generators[1].controls[leaderParam.Key].Tag).Value = (decimal)leaderParam.Value;
+                            }
+                        });
                     });
             }).Start();
         }

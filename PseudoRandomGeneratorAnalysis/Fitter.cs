@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
@@ -17,7 +18,14 @@ namespace PseudoRandomGeneratorAnalysis {
         public static int genSize = 150;
         public static int selectedGenSize = 30;
 
-        public static double[] Fit(string[] paramNames, double[] minVals, double[] maxVals, Func<double[], double> minFun, Action<string> logsOutput, Action<double> progressOutput) {
+        public static double[] Fit(
+            string[] paramNames,
+            double[] minVals,
+            double[] maxVals,
+            Func<double[], double> minFun,
+            Action<string> logsOutput,
+            Action<double> progressOutput,
+            Action<Dictionary<string, double>> leaderControl) {
             int paramsCount = paramNames.Length;
             Sheep[] generation = new Sheep[genSize];
             for (int sheepI = 0; sheepI < genSize; sheepI++) {
@@ -44,6 +52,11 @@ namespace PseudoRandomGeneratorAnalysis {
                 generation.Reverse();
                 selection = generation.Take(selectedGenSize).ToArray();
                 leader = selection[0];
+                Dictionary<string, double> leaderParams = new Dictionary<string, double>();
+                for (int i = 0; i < paramsCount; i++) {
+                    leaderParams.Add(paramNames[i], leader[i]);
+                }
+                leaderControl(leaderParams);
                 double selectionMeanRating = selection.Average(sheep => sheep.Rating);
                 double[] paramsMins = new double[paramsCount];
                 double[] paramsMaxes = new double[paramsCount];
