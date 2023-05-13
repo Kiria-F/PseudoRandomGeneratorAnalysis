@@ -10,6 +10,8 @@ using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Xml.Xsl;
 using System.Windows.Forms.VisualStyles;
+using static System.Net.Mime.MediaTypeNames;
+// using System.Reflection.Emit;
 
 namespace PseudoRandomGeneratorAnalysis {
 
@@ -286,18 +288,40 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ButtonTest_Click(object sender, EventArgs e) {
-            Fitter.Fit(
-                new string[] { "A", "B", "c" },
-                new double[] { 0, -1, -5 },
-                new double[] { 1, 0, 5 },
-                (double[] parameters) => {
+            ulong randCount = (ulong)InputCount.Value;
+            double[] fitResult;
+            new Task(() => {
+                fitResult = Fitter.Fit(
+                    new string[] { "A", "B", "C" },
+                    new double[] { 0, -1, -5 },
+                    new double[] { 1, 0, 5 },
+                    (double[] parameters) => {
+                        double loss = 0;
+                        for (int controlI = 0; controlI < 10; controlI++) {
+                            DynamicNCLTGenerator generator = new DynamicNCLTGenerator();
+                            generator.SetParameters(parameters);
+                            generator.Prepare();
+                            Dictionary<int, ulong> data = generator.ISequence(randCount);
 
-                },
-                ConsoleWrite,
-                (double val1) => { ConsoleSetProgress((int)(val1 * 1000D)); });
+                            double m = 0, d = 0;
+                            foreach (KeyValuePair<int, ulong> i in data) {
+                                m += (double)i.Key * i.Value;
+                            }
+                            m /= randCount;
+                            foreach (KeyValuePair<int, ulong> i in data) {
+                                double underSqr = i.Key - m;
+                                d += underSqr * underSqr * i.Value;
+                            }
+                            d /= randCount;
+                            double si = Math.Sqrt(d);
+                            loss += Math.Abs(si - generator.GetCalcedN());
+                        }
+                        return loss;
+                    },
+                    (string text) => { SafeInvoke(MyConsole, () => ConsoleWrite(text)); },
+                    (double val1) => { SafeInvoke(MyConsoleProgressBar, () => ConsoleSetProgress((int)(val1 * 1000D))); SafeInvoke(MyConsole, () => ConsoleWrite("qwe")); });
+            }).Start();
         }
-
-
     }
 
     abstract class Generator {
@@ -531,10 +555,20 @@ namespace PseudoRandomGeneratorAnalysis {
             parameterC = (double)(controls["c"].Tag as NumericUpDown).Value;
         }
 
+        public void SetParameters(double parameterA, double parameterB, double parameterC) {
+            this.parameterA = parameterA;
+            this.parameterB = parameterB;
+            this.parameterC = parameterC;
+        }
+
         public void SetParameters(double[] parameters) {
             parameterA = parameters[0];
             parameterB = parameters[1];
             parameterC = parameters[2];
+        }
+
+        public double GetCalcedN() {
+            return calcedN;
         }
 
         protected double NormalNext() {

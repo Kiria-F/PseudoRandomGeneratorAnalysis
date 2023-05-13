@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,24 +16,32 @@ namespace PseudoRandomGeneratorAnalysis {
         public static int genSize = 150;
         public static int selectedGenSize = 30;
 
-        public static double[] Fit( double[] paramNames, double[] minVals, double[] maxVals, Func<double[], double> minFun, Action<string> logsOutput, Action<double> progressOutput) {
+        public static double[] Fit(string[] paramNames, double[] minVals, double[] maxVals, Func<double[], double> minFun, Action<string> logsOutput, Action<double> progressOutput) {
             int paramsCount = paramNames.Length;
             Sheep[] generation = new Sheep[genSize];
             for (int sheepI = 0; sheepI < genSize; sheepI++) {
+                double[] parameters = new double[paramsCount];
                 for (int paramI = 0; paramI < paramsCount; paramI++) {
-                    generation[sheepI][paramI] = (maxVals[paramI] - minVals[paramI]) * random.NextDouble() + minVals[paramI];
+                    parameters[paramI] = (maxVals[paramI] - minVals[paramI]) * random.NextDouble() + minVals[paramI];
                 }
+                generation[sheepI] = new Sheep(parameters);
             }
 
             Sheep[] selection;
             Sheep leader = new Sheep(new double[] { 0, 0, 0 });
 
             for (int genI = 0; genI < gensCount; genI++) {
-                for (int sheepI = 0; sheepI < genSize; sheepI++)
-                {
-                    generation[sheepI].Rating = minFun(generation[sheepI].parameters);
+                Task[] TasksPool = new Task[genSize];
+                for (int sheepI = 0; sheepI < genSize; sheepI++) {
+                    int localSheepI = sheepI;
+                    TasksPool[sheepI] = new Task(() => {
+                        generation[localSheepI].Rating = minFun(generation[localSheepI].parameters);
+                    });
+                    TasksPool[sheepI].Start();
                 }
-                progressOutput(0D);
+                foreach (Task task in TasksPool) {
+                    task.Wait();
+                }
                 Array.Sort(generation);
                 generation.Reverse();
                 selection = generation.Take(selectedGenSize).ToArray();
@@ -60,8 +69,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     leaderStats +
                     "\n\n");
                 }
-                for (int i = 0; i < generation.Length; i++)  // генерирование следующего поколения
-                {
+                for (int i = 0; i < generation.Length; i++) {
                     Sheep sheepA = selection[random.Next(selection.Length)];
                     Sheep sheepB = selection[random.Next(selection.Length)];
                     generation[i] = Sheep.Reproduce(sheepA, sheepB);
@@ -90,7 +98,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 props[i] = random.NextDouble();
             }
             double[] newParameters = new double[sheepA.parameters.Length];
-            for (int i = 0;i < newParameters.Length;i++) {
+            for (int i = 0; i < newParameters.Length; i++) {
                 newParameters[i] = sheepA.parameters[i] * props[i] + sheepB.parameters[i] * (1D - props[i]);
             }
             return new Sheep(newParameters);
