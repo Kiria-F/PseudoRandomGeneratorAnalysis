@@ -302,7 +302,6 @@ namespace PseudoRandomGeneratorAnalysis {
                             generator.SetParameters(parameters);
                             generator.Prepare();
                             Dictionary<int, ulong> data = generator.ISequence(randCount);
-
                             double m = 0, d = 0;
                             foreach (KeyValuePair<int, ulong> i in data) {
                                 m += (double)i.Key * i.Value;
@@ -318,8 +317,12 @@ namespace PseudoRandomGeneratorAnalysis {
                         }
                         return loss;
                     },
-                    (string text) => { SafeInvoke(MyConsole, () => ConsoleWrite(text)); },
-                    (double val1) => { SafeInvoke(MyConsoleProgressBar, () => ConsoleSetProgress((int)(val1 * 1000D))); SafeInvoke(MyConsole, () => ConsoleWrite("qwe")); });
+                    (string text) => {
+                        SafeInvoke(MyConsole, () => ConsoleWrite(text));
+                    },
+                    (double val1) => {
+                        SafeInvoke(MyConsoleProgressBar, () => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000)));
+                    });
             }).Start();
         }
     }

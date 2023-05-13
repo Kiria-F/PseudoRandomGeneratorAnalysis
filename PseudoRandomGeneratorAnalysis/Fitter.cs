@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -31,17 +32,14 @@ namespace PseudoRandomGeneratorAnalysis {
             Sheep leader = new Sheep(new double[] { 0, 0, 0 });
 
             for (int genI = 0; genI < gensCount; genI++) {
-                Task[] TasksPool = new Task[genSize];
-                for (int sheepI = 0; sheepI < genSize; sheepI++) {
-                    int localSheepI = sheepI;
-                    TasksPool[sheepI] = new Task(() => {
-                        generation[localSheepI].Rating = minFun(generation[localSheepI].parameters);
-                    });
-                    TasksPool[sheepI].Start();
-                }
-                foreach (Task task in TasksPool) {
-                    task.Wait();
-                }
+                object lockObject = new object();
+                double progress = 0;
+                Parallel.ForEach(generation, new ParallelOptions { MaxDegreeOfParallelism = 8 }, sheep => {
+                    sheep.Rating = minFun(sheep.parameters);
+                    progress += 1D / genSize;
+                    progressOutput(progress);
+                });
+
                 Array.Sort(generation);
                 generation.Reverse();
                 selection = generation.Take(selectedGenSize).ToArray();
@@ -74,7 +72,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     Sheep sheepB = selection[random.Next(selection.Length)];
                     generation[i] = Sheep.Reproduce(sheepA, sheepB);
                 }
-                progressOutput((double)genI / gensCount);
+                // progressOutput((double)genI / gensCount);
             }
             logsOutput("\n\n  << DONE >>\n");
             progressOutput(0D);
