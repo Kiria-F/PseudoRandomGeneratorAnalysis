@@ -29,10 +29,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public Form1() {
             InitializeComponent();
-            //BaseChart.ChartAreas["Histogram"].AxisX.Minimum = 0;
-            //BaseChart.ChartAreas["Histogram"].AxisX.Maximum = 100;
-            //BaseChart.ChartAreas["Graphic"].AxisX.Minimum = 0;
-            //BaseChart.ChartAreas["Graphic"].AxisX.Maximum = 100;
+            // DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = 0;
 
             foreach (Generator generator in generators) {
                 GeneratorChoose.Items.Add(generator.name);
@@ -179,7 +176,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 seconds1 = DateTime.Now.Second;
                 millis1 = DateTime.Now.Millisecond;
             }).ContinueWith((task) => {
-                data = generator.ISequence(randCount, 0, 100);
+                data = generator.ISequence(randCount);
             }).ContinueWith((task) => {
                 seconds2 = DateTime.Now.Second;
                 millis2 = DateTime.Now.Millisecond;
@@ -215,7 +212,11 @@ namespace PseudoRandomGeneratorAnalysis {
                 SafeInvoke(ControlPanel, () => {
                     EnableControls(true);
                 });
-            });
+            })/*.ContinueWith((task) => {
+                SafeInvoke(MyConsole, () => { 
+                    ConsoleWrite((generator as DynamicNCLTGenerator).GetCalcedN().ToString() + "\n");
+                });
+            })*/;
             firstTask.Start();
         }
 
@@ -287,7 +288,7 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        private void ButtonTest_Click(object sender, EventArgs e) {
+        private void Test_AI() {
             ulong randCount = (ulong)InputCount.Value;
             double[] fitResult;
             new Task(() => {
@@ -297,7 +298,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     new double[] { 100, 0, 100 },
                     (double[] parameters) => {
                         double loss = 0;
-                        for (int controlI = 0; controlI < 10; controlI++) {
+                        for (int controlI = 0; controlI < 4; controlI++) {
                             DynamicNCLTGenerator generator = new DynamicNCLTGenerator();
                             generator.SetParameters(parameters);
                             generator.Prepare();
@@ -331,6 +332,14 @@ namespace PseudoRandomGeneratorAnalysis {
                         });
                     });
             }).Start();
+        }
+
+        private void Test_2text() {
+
+        }
+
+        private void ButtonTest_Click(object sender, EventArgs e) {
+            Test_2text();
         }
     }
 
@@ -520,6 +529,15 @@ namespace PseudoRandomGeneratorAnalysis {
             return (int)(gen + 0.5D);
         }
 
+        private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData) {
+            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
+            foreach (KeyValuePair<double, ulong> kvp in preData) {
+                int iGen = Modificate2I(kvp.Key); // 1 -> preSi
+                data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + kvp.Value : kvp.Value;
+            }
+            return data;
+        }
+
         private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData, int leftEdge, int rightEdge) {
             Dictionary<int, ulong> data = new Dictionary<int, ulong>();
             foreach (KeyValuePair<double, ulong> kvp in preData) {
@@ -528,6 +546,13 @@ namespace PseudoRandomGeneratorAnalysis {
                     data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + kvp.Value : kvp.Value;
                 }
             }
+            return data;
+        }
+
+        public override Dictionary<int, ulong> ISequence(ulong randCount) {
+            Dictionary<double, ulong> preData = NormalSequence(randCount);
+            CalcPreSi(preData);
+            Dictionary<int, ulong> data = ModificateSequence2I(preData);
             return data;
         }
 
@@ -593,11 +618,12 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            calcedN = parameterC + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
+            //calcedN = parameterC + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
+            calcedN = parameter_si;
         }
 
         public override double Next() {
-            return NormalNext() / calcedN;
+            return NormalNext(); // / calcedN;
         }
     }
 

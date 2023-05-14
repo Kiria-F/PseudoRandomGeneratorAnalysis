@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -104,6 +105,30 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public static Sheep Reproduce(Sheep sheepA, Sheep sheepB) {
+            int paramsCount = sheepA.parameters.Length;
+            double[] newParams = new double[paramsCount];
+            for (int paramIndex = 0; paramIndex < paramsCount; paramIndex++) {
+                bool isNegative = sheepA[paramIndex] < 0;
+                string geneA = Convert.ToString((long)Math.Abs(sheepA[paramIndex] * 1_000_000_000D), 2);
+                string geneB = Convert.ToString((long)Math.Abs(sheepB[paramIndex] * 1_000_000_000D), 2);
+                while (geneA.Length > geneB.Length) {
+                    geneB = "0" + geneB;
+                }
+                while (geneB.Length > geneA.Length) {
+                    geneA = "0" + geneA;
+                }
+                int crossPoint = (int)(random.NextDouble() * random.NextDouble() * geneA.Length + 0.8D);
+                string crossGeneStr = geneA.Substring(0, crossPoint) + geneB.Substring(crossPoint);
+                newParams[paramIndex] = Convert.ToInt64(crossGeneStr, 2);
+                newParams[paramIndex] /= 1_000_000_000D;
+                if (isNegative) {
+                    newParams[paramIndex] *= -1;
+                }
+            }
+            return new Sheep(newParams);
+        }
+
+        public static Sheep Reproduce_OLD(Sheep sheepA, Sheep sheepB) {
             double[] props = new double[sheepA.parameters.Length];
             for (int i = 0; i < props.Length; i++) {
                 props[i] = random.NextDouble();
