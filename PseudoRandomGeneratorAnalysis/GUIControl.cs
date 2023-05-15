@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 using System.Xml.Xsl;
 using System.Windows.Forms.VisualStyles;
 using static System.Net.Mime.MediaTypeNames;
-// using System.Reflection.Emit;
 
 namespace PseudoRandomGeneratorAnalysis {
 
@@ -166,25 +165,17 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void Run(bool rerun) {
-            ulong randCount = (ulong)InputCount.Value;
+            EnableControls(false);
             Generator generator = generators[GeneratorChoose.SelectedIndex];
             generator.CollectParameterValues();
-            Dictionary<int, ulong> data = null;
-            int seconds1 = 0;
-            int millis1 = 0;
-            int seconds2 = 0;
-            int millis2 = 0;
-
             new Task(() => {
-                ActiveForm.Invoke((Action)(() => {
-                    EnableControls(false);
-                }));
+                ulong randCount = (ulong)InputCount.Value;
                 generator.Prepare();
-                seconds1 = DateTime.Now.Second;
-                millis1 = DateTime.Now.Millisecond;
-                data = generator.ISequence(randCount);
-                seconds2 = DateTime.Now.Second;
-                millis2 = DateTime.Now.Millisecond;
+                int millis1 = DateTime.Now.Millisecond;
+                int seconds1 = DateTime.Now.Second;
+                Dictionary<int, ulong> data = generator.ISequence(randCount);
+                int millis2 = DateTime.Now.Millisecond;
+                int seconds2 = DateTime.Now.Second;
                 if (seconds2 < seconds1) {
                     seconds2 += 60;
                 }
