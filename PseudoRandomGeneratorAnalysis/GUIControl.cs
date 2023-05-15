@@ -200,12 +200,6 @@ namespace PseudoRandomGeneratorAnalysis {
                     EnableControls(true);
                 }));
             }).Start();
-            
-            /*.ContinueWith((task) => {
-                MyConsole.Invoke(() => { 
-                    ConsoleWrite((generator as DynamicNCLTGenerator).GetCalcedN().ToString() + "\n");
-                });
-            })*/
         }
 
         private void ButtonRun_Click(object sender, EventArgs e) {
@@ -222,12 +216,6 @@ namespace PseudoRandomGeneratorAnalysis {
         private void ConsoleWrite(string text) {
             MyConsole.AppendText(text);
             MyConsole.ScrollToCaret();
-            //if (MyConsole.InvokeRequired) {
-            //    MyConsole.Invoke(new SafeCallDelegate(ConsoleWrite), new object[] { text });
-            //} else {
-            //    MyConsole.AppendText(text);
-            //    MyConsole.ScrollToCaret();
-            //}
         }
 
         private void ButtonRerun_Click(object sender, EventArgs e) {
@@ -307,13 +295,13 @@ namespace PseudoRandomGeneratorAnalysis {
                         return loss;
                     },
                     (string text) => {
-                        MyConsole.Invoke((Action)(() => ConsoleWrite(text)));
+                        ActiveForm.Invoke((Action)(() => ConsoleWrite(text)));
                     },
                     (double val1) => {
-                        MyConsoleProgressBar.Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
+                        ActiveForm.Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
                     },
                     (Dictionary<string, double> leaderParams) => {
-                        generatorParameters.Invoke((Action)(() => {
+                        ActiveForm.Invoke((Action)(() => {
                             foreach (KeyValuePair<string, double> leaderParam in leaderParams) {
                                 ((NumericUpDown)generators[1].controls[leaderParam.Key].Tag).Value = (decimal)leaderParam.Value;
                             }
