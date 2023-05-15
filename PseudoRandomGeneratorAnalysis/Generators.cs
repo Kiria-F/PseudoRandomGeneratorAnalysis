@@ -8,9 +8,9 @@ using System.Windows.Forms;
 namespace PseudoRandomGeneratorAnalysis {
 
     abstract class Generator {
-        protected Random random = new Random();
+        protected static readonly Random random = new Random();
         public string name;
-        public Dictionary<string, Panel> controls;
+        public readonly Dictionary<string, Panel> controls;
         protected double parameter_m;
         protected double parameter_si;
 

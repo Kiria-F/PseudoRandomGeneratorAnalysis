@@ -17,8 +17,6 @@ namespace PseudoRandomGeneratorAnalysis {
 
     public partial class GUIControl : Form {
         private Pen pen = new Pen(Color.FromArgb(100, 0, 0, 0), 1);
-        private delegate void SafeCallDelegate(string text);
-        private delegate void UniversalSafeCallDelegate(Control obj, Action act);
         private int lastProgressVal = -1;
 
         private Generator[] generators = new Generator[] {
@@ -35,14 +33,6 @@ namespace PseudoRandomGeneratorAnalysis {
                 GeneratorChoose.Items.Add(generator.name);
             }
             GeneratorChoose.SelectedIndex = 0;
-        }
-
-        private void SafeInvoke(Control obj, Action act) {
-            if (obj.InvokeRequired) {
-                obj.Invoke(new UniversalSafeCallDelegate(SafeInvoke), new object[] { obj, act });
-            } else {
-                act();
-            }
         }
 
         private String SplitLongNumber(String num) {
@@ -185,59 +175,37 @@ namespace PseudoRandomGeneratorAnalysis {
             int seconds2 = 0;
             int millis2 = 0;
 
-            Task firstTask = new Task(() => {
-                SafeInvoke(ControlPanel, () => {
+            new Task(() => {
+                ActiveForm.Invoke((Action)(() => {
                     EnableControls(false);
-                });
-            });
-            firstTask.ContinueWith((task) => {
+                }));
                 generator.Prepare();
-            }).ContinueWith((task) => {
                 seconds1 = DateTime.Now.Second;
                 millis1 = DateTime.Now.Millisecond;
-            }).ContinueWith((task) => {
                 data = generator.ISequence(randCount);
-            }).ContinueWith((task) => {
                 seconds2 = DateTime.Now.Second;
                 millis2 = DateTime.Now.Millisecond;
                 if (seconds2 < seconds1) {
                     seconds2 += 60;
                 }
-                SafeInvoke(LabelTime, () => {
+                ActiveForm.Invoke((Action)(() => {
                     LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(ChartsSplitContainer, () => {
                     if (rerun) {
                         ClearCharts();
                     }
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(DistributionChart, () => {
                     AddDistributionDataToChart(data, randCount);
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(IntegralChart, () => {
                     AddIntegralDataToChart(data, randCount);
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(QualityChart, () => {
                     AddQualityDataToChart(data, randCount, generator);
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(StaticInfo, () => {
                     CalcStats(data, randCount);
-                });
-            }).ContinueWith((task) => {
-                SafeInvoke(ControlPanel, () => {
                     EnableControls(true);
-                });
-            })/*.ContinueWith((task) => {
-                SafeInvoke(MyConsole, () => { 
+                }));
+            }).Start();
+            
+            /*.ContinueWith((task) => {
+                MyConsole.Invoke(() => { 
                     ConsoleWrite((generator as DynamicNCLTGenerator).GetCalcedN().ToString() + "\n");
                 });
-            })*/;
-            firstTask.Start();
+            })*/
         }
 
         private void ButtonRun_Click(object sender, EventArgs e) {
@@ -293,8 +261,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void GeneratorChoose_SelectedIndexChanged(object sender, EventArgs e) {
-            ComboBox currentSender = (ComboBox)sender;
-            int currentIndex = currentSender.SelectedIndex;
+            int currentIndex = (sender as ComboBox).SelectedIndex;
             InputContainer.Controls.Clear();
             foreach (KeyValuePair<string, Panel> controlWrapper in generators[currentIndex].controls) {
                 InputContainer.Controls.Add(controlWrapper.Value);
@@ -340,17 +307,17 @@ namespace PseudoRandomGeneratorAnalysis {
                         return loss;
                     },
                     (string text) => {
-                        SafeInvoke(MyConsole, () => ConsoleWrite(text));
+                        MyConsole.Invoke((Action)(() => ConsoleWrite(text)));
                     },
                     (double val1) => {
-                        SafeInvoke(MyConsoleProgressBar, () => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000)));
+                        MyConsoleProgressBar.Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
                     },
                     (Dictionary<string, double> leaderParams) => {
-                        SafeInvoke(generatorParameters, () => {
+                        generatorParameters.Invoke((Action)(() => {
                             foreach (KeyValuePair<string, double> leaderParam in leaderParams) {
                                 ((NumericUpDown)generators[1].controls[leaderParam.Key].Tag).Value = (decimal)leaderParam.Value;
                             }
-                        });
+                        }));
                     });
             }).Start();
         }
