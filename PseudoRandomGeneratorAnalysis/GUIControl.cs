@@ -59,6 +59,16 @@ namespace PseudoRandomGeneratorAnalysis {
             QualityChart.Series.Clear();
         }
 
+        private void ClearStats() {
+            LabelM.Text = "___";
+            LabelD.Text = "___";
+            LabelSi.Text = "___";
+            LabelIn1.Text = "___";
+            LabelIn2.Text = "___";
+            LabelIn3.Text = "___";
+            LabelTime.Text = "___";
+        }
+
         private void AddDistributionDataToChart(Dictionary<int, ulong> data, ulong randCount) {
             System.Windows.Forms.DataVisualization.Charting.Series newSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
             newSeries.ChartArea = "DistributionArea";
@@ -258,6 +268,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         private void ButtonClear_Click(object sender, EventArgs e) {
             ClearCharts();
+            ClearStats();
         }
 
         private void ButtonReset_Click(object sender, EventArgs e) {
