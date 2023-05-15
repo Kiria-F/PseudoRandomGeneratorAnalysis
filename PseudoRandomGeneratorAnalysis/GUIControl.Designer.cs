@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.ControlPanel = new System.Windows.Forms.Panel();
             this.buttonsContainer = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonRun = new System.Windows.Forms.Button();
@@ -39,8 +39,12 @@
             this.ButtonClear = new System.Windows.Forms.Button();
             this.StaticInfo = new System.Windows.Forms.GroupBox();
             this.LabelTime = new System.Windows.Forms.Label();
-            this.LabelIn = new System.Windows.Forms.Label();
+            this.LabelIn3 = new System.Windows.Forms.Label();
+            this.LabelIn2 = new System.Windows.Forms.Label();
+            this.LabelIn1 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.LabelSi = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
@@ -176,8 +180,12 @@
             // StaticInfo
             // 
             this.StaticInfo.Controls.Add(this.LabelTime);
-            this.StaticInfo.Controls.Add(this.LabelIn);
+            this.StaticInfo.Controls.Add(this.LabelIn3);
+            this.StaticInfo.Controls.Add(this.LabelIn2);
+            this.StaticInfo.Controls.Add(this.LabelIn1);
             this.StaticInfo.Controls.Add(this.label7);
+            this.StaticInfo.Controls.Add(this.label5);
+            this.StaticInfo.Controls.Add(this.label3);
             this.StaticInfo.Controls.Add(this.label2);
             this.StaticInfo.Controls.Add(this.LabelSi);
             this.StaticInfo.Controls.Add(this.label17);
@@ -189,7 +197,7 @@
             this.StaticInfo.Location = new System.Drawing.Point(0, 227);
             this.StaticInfo.Name = "StaticInfo";
             this.StaticInfo.Padding = new System.Windows.Forms.Padding(30, 10, 60, 10);
-            this.StaticInfo.Size = new System.Drawing.Size(300, 167);
+            this.StaticInfo.Size = new System.Drawing.Size(300, 205);
             this.StaticInfo.TabIndex = 3;
             this.StaticInfo.TabStop = false;
             this.StaticInfo.Text = "Свойства";
@@ -197,38 +205,74 @@
             // LabelTime
             // 
             this.LabelTime.AutoSize = true;
-            this.LabelTime.Location = new System.Drawing.Point(77, 119);
+            this.LabelTime.Location = new System.Drawing.Point(76, 163);
             this.LabelTime.Name = "LabelTime";
             this.LabelTime.Size = new System.Drawing.Size(40, 22);
             this.LabelTime.TabIndex = 0;
             this.LabelTime.Text = "___";
             // 
-            // LabelIn
+            // LabelIn3
             // 
-            this.LabelIn.AutoSize = true;
-            this.LabelIn.Location = new System.Drawing.Point(77, 97);
-            this.LabelIn.Name = "LabelIn";
-            this.LabelIn.Size = new System.Drawing.Size(40, 22);
-            this.LabelIn.TabIndex = 0;
-            this.LabelIn.Text = "___";
+            this.LabelIn3.AutoSize = true;
+            this.LabelIn3.Location = new System.Drawing.Point(77, 141);
+            this.LabelIn3.Name = "LabelIn3";
+            this.LabelIn3.Size = new System.Drawing.Size(40, 22);
+            this.LabelIn3.TabIndex = 0;
+            this.LabelIn3.Text = "___";
+            // 
+            // LabelIn2
+            // 
+            this.LabelIn2.AutoSize = true;
+            this.LabelIn2.Location = new System.Drawing.Point(77, 119);
+            this.LabelIn2.Name = "LabelIn2";
+            this.LabelIn2.Size = new System.Drawing.Size(40, 22);
+            this.LabelIn2.TabIndex = 0;
+            this.LabelIn2.Text = "___";
+            // 
+            // LabelIn1
+            // 
+            this.LabelIn1.AutoSize = true;
+            this.LabelIn1.Location = new System.Drawing.Point(77, 97);
+            this.LabelIn1.Name = "LabelIn1";
+            this.LabelIn1.Size = new System.Drawing.Size(40, 22);
+            this.LabelIn1.TabIndex = 0;
+            this.LabelIn1.Text = "___";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(41, 119);
+            this.label7.Location = new System.Drawing.Point(40, 163);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(36, 22);
             this.label7.TabIndex = 0;
             this.label7.Text = "t = ";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(10, 141);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(66, 22);
+            this.label5.TabIndex = 0;
+            this.label5.Text = "в 3σ = ";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(10, 119);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(66, 22);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "в 2σ = ";
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(32, 97);
+            this.label2.Location = new System.Drawing.Point(10, 97);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(45, 22);
+            this.label2.Size = new System.Drawing.Size(66, 22);
             this.label2.TabIndex = 0;
-            this.label2.Text = "in = ";
+            this.label2.Text = "в 1σ = ";
             // 
             // LabelSi
             // 
@@ -527,18 +571,18 @@
             // 
             // DistributionChart
             // 
-            chartArea1.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea1.AxisX.Title = "x";
-            chartArea1.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea1.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea1.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea1.AxisY.Minimum = 0D;
-            chartArea1.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea1.AxisY.Title = "f(x)";
-            chartArea1.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea1.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea1.Name = "DistributionArea";
-            this.DistributionChart.ChartAreas.Add(chartArea1);
+            chartArea4.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea4.AxisX.Title = "x";
+            chartArea4.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea4.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea4.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea4.AxisY.Minimum = 0D;
+            chartArea4.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea4.AxisY.Title = "f(x)";
+            chartArea4.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea4.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea4.Name = "DistributionArea";
+            this.DistributionChart.ChartAreas.Add(chartArea4);
             this.DistributionChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DistributionChart.Location = new System.Drawing.Point(0, 0);
             this.DistributionChart.Margin = new System.Windows.Forms.Padding(4);
@@ -572,19 +616,19 @@
             // 
             // IntegralChart
             // 
-            chartArea2.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea2.AxisX.Title = "x";
-            chartArea2.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea2.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea2.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea2.AxisY.Maximum = 1D;
-            chartArea2.AxisY.Minimum = 0D;
-            chartArea2.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea2.AxisY.Title = "F(x)";
-            chartArea2.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea2.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea2.Name = "IntegralArea";
-            this.IntegralChart.ChartAreas.Add(chartArea2);
+            chartArea5.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea5.AxisX.Title = "x";
+            chartArea5.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea5.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea5.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea5.AxisY.Maximum = 1D;
+            chartArea5.AxisY.Minimum = 0D;
+            chartArea5.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea5.AxisY.Title = "F(x)";
+            chartArea5.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea5.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea5.Name = "IntegralArea";
+            this.IntegralChart.ChartAreas.Add(chartArea5);
             this.IntegralChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IntegralChart.Location = new System.Drawing.Point(3, 3);
             this.IntegralChart.Margin = new System.Windows.Forms.Padding(4);
@@ -629,19 +673,19 @@
             // 
             // QualityChart
             // 
-            chartArea3.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea3.AxisX.Minimum = 0D;
-            chartArea3.AxisX.Title = "x";
-            chartArea3.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea3.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea3.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea3.AxisY.Minimum = 0D;
-            chartArea3.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea3.AxisY.Title = "f(x)";
-            chartArea3.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
-            chartArea3.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            chartArea3.Name = "QualityArea";
-            this.QualityChart.ChartAreas.Add(chartArea3);
+            chartArea6.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea6.AxisX.Minimum = 0D;
+            chartArea6.AxisX.Title = "x";
+            chartArea6.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea6.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea6.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
+            chartArea6.AxisY.Minimum = 0D;
+            chartArea6.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
+            chartArea6.AxisY.Title = "f(x)";
+            chartArea6.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
+            chartArea6.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            chartArea6.Name = "QualityArea";
+            this.QualityChart.ChartAreas.Add(chartArea6);
             this.QualityChart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.QualityChart.Location = new System.Drawing.Point(3, 3);
             this.QualityChart.Margin = new System.Windows.Forms.Padding(4);
@@ -747,7 +791,7 @@
         private System.Windows.Forms.GroupBox generatorParameters;
         private System.Windows.Forms.Button ButtonReset;
         private System.Windows.Forms.Label LabelInputSi;
-        private System.Windows.Forms.Label LabelIn;
+        private System.Windows.Forms.Label LabelIn1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button ButtonSave;
         private System.Windows.Forms.Label LabelTime;
@@ -776,6 +820,10 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart QualityChart;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.CheckBox ShowFunctionCheckBox;
+        private System.Windows.Forms.Label LabelIn3;
+        private System.Windows.Forms.Label LabelIn2;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label3;
     }
 }
 

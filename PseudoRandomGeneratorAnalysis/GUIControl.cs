@@ -141,18 +141,28 @@ namespace PseudoRandomGeneratorAnalysis {
                 d += underSqr * underSqr * i.Value;
             }
             d /= randCount;
-            double si = Math.Sqrt(d), si3 = si * 3, leftBorder = m - si3, rightBorder = m + si3;
-            double outOf3Si = 0;
+            double si = Math.Sqrt(d);
+            double leftBorder1 = m - si * 1, rightBorder1 = m + si * 1;
+            double leftBorder2 = m - si * 2, rightBorder2 = m + si * 2;
+            double leftBorder3 = m - si * 3, rightBorder3 = m + si * 3;
+            double in1Si = 0, in2Si = 0, in3Si = 0;
             foreach (KeyValuePair<int, ulong> i in data) {
-                if (i.Key <= leftBorder || i.Key >= rightBorder) {
-                    outOf3Si += i.Value;
+                if (i.Key >= leftBorder3 && i.Key <= rightBorder3) {
+                    in3Si += i.Value;
+                    if (i.Key >= leftBorder2 && i.Key <= rightBorder2) {
+                        in2Si += i.Value;
+                        if (i.Key >= leftBorder1 && i.Key <= rightBorder1) {
+                            in1Si += i.Value;
+                        }
+                    }
                 }
             }
-            outOf3Si = (1f - outOf3Si / randCount) * 100;
             LabelM.Text = m.ToString();
             LabelD.Text = d.ToString();
             LabelSi.Text = si.ToString();
-            LabelIn.Text = outOf3Si.ToString() + "%";
+            LabelIn1.Text = ((in1Si / randCount) * 100).ToString() + "%";
+            LabelIn2.Text = ((in2Si / randCount) * 100).ToString() + "%";
+            LabelIn3.Text = ((in3Si / randCount) * 100).ToString() + "%";
         }
 
         private void Run(bool rerun) {
