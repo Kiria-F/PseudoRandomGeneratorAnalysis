@@ -129,6 +129,17 @@ namespace PseudoRandomGeneratorAnalysis {
             DistributionChart.Series.Add(perfectSeries);
         }
 
+        private void CorrectChartsZoom(Dictionary<int, ulong> data) {
+            int min = data.Keys.Min() / 10;
+            int max = (data.Keys.Max() / 10 + 1) * 10;
+            DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = min;
+            DistributionChart.ChartAreas["DistributionArea"].AxisX.Maximum = max;
+            IntegralChart.ChartAreas["IntegralArea"].AxisX.Minimum = min;
+            IntegralChart.ChartAreas["IntegralArea"].AxisX.Maximum = max;
+            QualityChart.ChartAreas["QualityArea"].AxisX.Minimum = min;
+            QualityChart.ChartAreas["QualityArea"].AxisX.Maximum = max;
+        }
+
         private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
             double m = 0, d = 0;
             foreach (KeyValuePair<int, ulong> i in data) {
@@ -187,6 +198,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     AddDistributionDataToChart(data, randCount);
                     AddIntegralDataToChart(data, randCount);
                     AddQualityDataToChart(data, randCount, generator);
+                    CorrectChartsZoom(data);
                     CalcStats(data, randCount);
                     EnableControls(true);
                 }));
