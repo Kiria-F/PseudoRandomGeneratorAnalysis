@@ -190,7 +190,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 if (seconds2 < seconds1) {
                     seconds2 += 60;
                 }
-                ActiveForm.Invoke((Action)(() => {
+                Invoke((Action)(() => {
                     LabelTime.Text = (((double)(seconds2 * 1000 + millis2 - seconds1 * 1000 - millis1)) / 1000).ToString() + " s";
                     if (rerun) {
                         ClearCharts();
