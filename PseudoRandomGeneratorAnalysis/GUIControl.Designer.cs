@@ -544,7 +544,7 @@
             this.DistributionAnalysisPage.Margin = new System.Windows.Forms.Padding(4);
             this.DistributionAnalysisPage.Name = "DistributionAnalysisPage";
             this.DistributionAnalysisPage.Padding = new System.Windows.Forms.Padding(4);
-            this.DistributionAnalysisPage.Size = new System.Drawing.Size(990, 714);
+            this.DistributionAnalysisPage.Size = new System.Drawing.Size(973, 714);
             this.DistributionAnalysisPage.TabIndex = 0;
             this.DistributionAnalysisPage.Text = "Анализ распределения";
             this.DistributionAnalysisPage.UseVisualStyleBackColor = true;
@@ -564,7 +564,7 @@
             // ChartsSplitContainer.Panel2
             // 
             this.ChartsSplitContainer.Panel2.Controls.Add(this.tabControl1);
-            this.ChartsSplitContainer.Size = new System.Drawing.Size(982, 706);
+            this.ChartsSplitContainer.Size = new System.Drawing.Size(965, 706);
             this.ChartsSplitContainer.SplitterDistance = 305;
             this.ChartsSplitContainer.SplitterWidth = 10;
             this.ChartsSplitContainer.TabIndex = 0;
@@ -588,7 +588,7 @@
             this.DistributionChart.Margin = new System.Windows.Forms.Padding(4);
             this.DistributionChart.Name = "DistributionChart";
             this.DistributionChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            this.DistributionChart.Size = new System.Drawing.Size(982, 305);
+            this.DistributionChart.Size = new System.Drawing.Size(965, 305);
             this.DistributionChart.TabIndex = 2;
             this.DistributionChart.Text = "DistributionChart";
             // 
@@ -600,7 +600,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(982, 391);
+            this.tabControl1.Size = new System.Drawing.Size(965, 391);
             this.tabControl1.TabIndex = 1;
             // 
             // tabPage3
@@ -609,7 +609,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 31);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(974, 356);
+            this.tabPage3.Size = new System.Drawing.Size(957, 356);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Интегральное представление";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -634,7 +634,7 @@
             this.IntegralChart.Margin = new System.Windows.Forms.Padding(4);
             this.IntegralChart.Name = "IntegralChart";
             this.IntegralChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            this.IntegralChart.Size = new System.Drawing.Size(968, 350);
+            this.IntegralChart.Size = new System.Drawing.Size(951, 350);
             this.IntegralChart.TabIndex = 3;
             this.IntegralChart.Text = "IntegralChart";
             // 
@@ -642,10 +642,10 @@
             // 
             this.tabPage4.Controls.Add(this.panel2);
             this.tabPage4.Controls.Add(this.QualityChart);
-            this.tabPage4.Location = new System.Drawing.Point(4, 31);
+            this.tabPage4.Location = new System.Drawing.Point(4, 25);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(974, 356);
+            this.tabPage4.Size = new System.Drawing.Size(974, 362);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "График отклонений";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -654,7 +654,7 @@
             // 
             this.panel2.Controls.Add(this.ShowFunctionCheckBox);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(3, 321);
+            this.panel2.Location = new System.Drawing.Point(3, 327);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(968, 32);
             this.panel2.TabIndex = 4;
@@ -691,7 +691,7 @@
             this.QualityChart.Margin = new System.Windows.Forms.Padding(4);
             this.QualityChart.Name = "QualityChart";
             this.QualityChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            this.QualityChart.Size = new System.Drawing.Size(968, 350);
+            this.QualityChart.Size = new System.Drawing.Size(968, 356);
             this.QualityChart.TabIndex = 3;
             this.QualityChart.Text = "QualityChart";
             // 
@@ -704,7 +704,7 @@
             this.TabControl.Margin = new System.Windows.Forms.Padding(4);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(998, 749);
+            this.TabControl.Size = new System.Drawing.Size(981, 749);
             this.TabControl.TabIndex = 1;
             // 
             // splitContainer1
@@ -720,7 +720,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.TabControl);
-            this.splitContainer1.Size = new System.Drawing.Size(1302, 749);
+            this.splitContainer1.Size = new System.Drawing.Size(1285, 749);
             this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 2;
             // 
@@ -728,7 +728,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 22F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1302, 749);
+            this.ClientSize = new System.Drawing.Size(1285, 749);
             this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(4);
