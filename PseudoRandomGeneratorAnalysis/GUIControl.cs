@@ -102,7 +102,7 @@ namespace PseudoRandomGeneratorAnalysis {
             perfectSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             perfectSeries.Color = Color.Blue;
             perfectSeries.BorderWidth = 2;
-            perfectSeries.Enabled = false;
+            perfectSeries.Enabled = ShowFunctionCheckBox.Checked;
 
             double maxPerfectValue = 0;
             ulong maxValue = 0;
@@ -129,15 +129,21 @@ namespace PseudoRandomGeneratorAnalysis {
             DistributionChart.Series.Add(perfectSeries);
         }
 
-        private void CorrectChartsZoom(Dictionary<int, ulong> data) {
-            int min = data.Keys.Min() / 10;
-            int max = (data.Keys.Max() / 10 + 1) * 10;
+        private void CorrectChartsZoom(Dictionary<int, ulong> data, double parameter_m) {
+            double dmin = data.Keys.Min();
+            double dmax = data.Keys.Max();
+            double amplitude = Math.Max(Math.Abs(parameter_m - dmin), (parameter_m - dmax));
+            int min = (int)(parameter_m - amplitude) / 10 * 10;
+            int max = ((int)(parameter_m + amplitude) / 10 + 1) * 10;
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = min;
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Maximum = max;
             IntegralChart.ChartAreas["IntegralArea"].AxisX.Minimum = min;
             IntegralChart.ChartAreas["IntegralArea"].AxisX.Maximum = max;
             QualityChart.ChartAreas["QualityArea"].AxisX.Minimum = min;
             QualityChart.ChartAreas["QualityArea"].AxisX.Maximum = max;
+            if (RealPropportionsCheckBox.Checked) {
+                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = DistributionChart.ChartAreas["DistributionArea"].AxisY.Maximum;
+            }
         }
 
         private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
@@ -198,8 +204,9 @@ namespace PseudoRandomGeneratorAnalysis {
                     AddDistributionDataToChart(data, randCount);
                     AddIntegralDataToChart(data, randCount);
                     AddQualityDataToChart(data, randCount, generator);
-                    CorrectChartsZoom(data);
                     CalcStats(data, randCount);
+                    DistributionChart.Update();
+                    CorrectChartsZoom(data, generator.GetParameterM());
                     EnableControls(true);
                 }));
             }).Start();
@@ -263,10 +270,18 @@ namespace PseudoRandomGeneratorAnalysis {
             int seriesCount = DistributionChart.Series.Count / 2;
             for (int i = 0; i < seriesCount; i++) {
                 string seriesName = "perfect_" + i;
-                DistributionChart.Series[seriesName].Enabled = ((CheckBox)sender).Checked;
+                DistributionChart.Series[seriesName].Enabled = (sender as CheckBox).Checked;
             }
         }
 
+        private void RealPropportionsCheckBox_CheckedChanged(object sender, EventArgs e) {
+            if ((sender as CheckBox).Checked) {
+                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = DistributionChart.ChartAreas["DistributionArea"].AxisY.Maximum;
+            } else {
+                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = double.NaN;
+            }
+        }
+        
         private void Test_AI() {
             ulong randCount = (ulong)InputCount.Value;
             double[] fitResult;
@@ -320,5 +335,10 @@ namespace PseudoRandomGeneratorAnalysis {
         private void ButtonTest_Click(object sender, EventArgs e) {
             Test_2text();
         }
+
+        private void GUIControl_SizeChanged(object sender, EventArgs e) {
+            ConsoleWrite(Size.ToString() + "\n");
+        }
+
     }
 }

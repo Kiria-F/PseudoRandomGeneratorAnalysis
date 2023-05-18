@@ -79,6 +79,7 @@
             this.QualityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.RealPropportionsCheckBox = new System.Windows.Forms.CheckBox();
             this.ControlPanel.SuspendLayout();
             this.buttonsContainer.SuspendLayout();
             this.StaticInfo.SuspendLayout();
@@ -510,7 +511,7 @@
             this.ConsolePage.Controls.Add(this.MyConsoleProgressBar);
             this.ConsolePage.Location = new System.Drawing.Point(4, 25);
             this.ConsolePage.Name = "ConsolePage";
-            this.ConsolePage.Size = new System.Drawing.Size(990, 720);
+            this.ConsolePage.Size = new System.Drawing.Size(973, 720);
             this.ConsolePage.TabIndex = 0;
             this.ConsolePage.Text = "Консоль";
             // 
@@ -524,7 +525,7 @@
             this.MyConsole.Name = "MyConsole";
             this.MyConsole.ReadOnly = true;
             this.MyConsole.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.MyConsole.Size = new System.Drawing.Size(990, 697);
+            this.MyConsole.Size = new System.Drawing.Size(973, 697);
             this.MyConsole.TabIndex = 0;
             this.MyConsole.Text = "";
             // 
@@ -534,7 +535,7 @@
             this.MyConsoleProgressBar.Location = new System.Drawing.Point(0, 697);
             this.MyConsoleProgressBar.Maximum = 1000;
             this.MyConsoleProgressBar.Name = "MyConsoleProgressBar";
-            this.MyConsoleProgressBar.Size = new System.Drawing.Size(990, 23);
+            this.MyConsoleProgressBar.Size = new System.Drawing.Size(973, 23);
             this.MyConsoleProgressBar.TabIndex = 1;
             // 
             // DistributionAnalysisPage
@@ -642,21 +643,22 @@
             // 
             this.tabPage4.Controls.Add(this.panel2);
             this.tabPage4.Controls.Add(this.QualityChart);
-            this.tabPage4.Location = new System.Drawing.Point(4, 25);
+            this.tabPage4.Location = new System.Drawing.Point(4, 31);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(974, 362);
+            this.tabPage4.Size = new System.Drawing.Size(957, 356);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "График отклонений";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.RealPropportionsCheckBox);
             this.panel2.Controls.Add(this.ShowFunctionCheckBox);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(3, 327);
+            this.panel2.Location = new System.Drawing.Point(3, 321);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(968, 32);
+            this.panel2.Size = new System.Drawing.Size(951, 32);
             this.panel2.TabIndex = 4;
             // 
             // ShowFunctionCheckBox
@@ -681,7 +683,7 @@
             chartArea3.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
             chartArea3.AxisY.Minimum = 0D;
             chartArea3.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
-            chartArea3.AxisY.Title = "f(x)";
+            chartArea3.AxisY.Title = "Loss";
             chartArea3.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
             chartArea3.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             chartArea3.Name = "QualityArea";
@@ -691,7 +693,7 @@
             this.QualityChart.Margin = new System.Windows.Forms.Padding(4);
             this.QualityChart.Name = "QualityChart";
             this.QualityChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            this.QualityChart.Size = new System.Drawing.Size(968, 356);
+            this.QualityChart.Size = new System.Drawing.Size(951, 350);
             this.QualityChart.TabIndex = 3;
             this.QualityChart.Text = "QualityChart";
             // 
@@ -723,6 +725,20 @@
             this.splitContainer1.Size = new System.Drawing.Size(1285, 749);
             this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 2;
+            // 
+            // RealPropportionsCheckBox
+            // 
+            this.RealPropportionsCheckBox.AutoSize = true;
+            this.RealPropportionsCheckBox.Checked = true;
+            this.RealPropportionsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.RealPropportionsCheckBox.Dock = System.Windows.Forms.DockStyle.Left;
+            this.RealPropportionsCheckBox.Location = new System.Drawing.Point(191, 0);
+            this.RealPropportionsCheckBox.Name = "RealPropportionsCheckBox";
+            this.RealPropportionsCheckBox.Size = new System.Drawing.Size(212, 32);
+            this.RealPropportionsCheckBox.TabIndex = 3;
+            this.RealPropportionsCheckBox.Text = "Реальные пропорции";
+            this.RealPropportionsCheckBox.UseVisualStyleBackColor = true;
+            this.RealPropportionsCheckBox.CheckedChanged += new System.EventHandler(this.RealPropportionsCheckBox_CheckedChanged);
             // 
             // GUIControl
             // 
@@ -824,6 +840,7 @@
         private System.Windows.Forms.Label LabelIn2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox RealPropportionsCheckBox;
     }
 }
 

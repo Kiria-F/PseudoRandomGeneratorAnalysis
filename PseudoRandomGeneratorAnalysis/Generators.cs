@@ -108,6 +108,10 @@ namespace PseudoRandomGeneratorAnalysis {
         public abstract void Prepare();
 
         public abstract double Next();
+
+        public double GetParameterM() {
+            return parameter_m;
+        }
     }
 
     //abstract class CLTGenerator : Generator {
