@@ -75,11 +75,11 @@
             this.IntegralChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.NaturalProportionsCheckBox = new System.Windows.Forms.CheckBox();
             this.ShowFunctionCheckBox = new System.Windows.Forms.CheckBox();
             this.QualityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.RealPropportionsCheckBox = new System.Windows.Forms.CheckBox();
             this.ControlPanel.SuspendLayout();
             this.buttonsContainer.SuspendLayout();
             this.StaticInfo.SuspendLayout();
@@ -653,13 +653,27 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.RealPropportionsCheckBox);
+            this.panel2.Controls.Add(this.NaturalProportionsCheckBox);
             this.panel2.Controls.Add(this.ShowFunctionCheckBox);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel2.Location = new System.Drawing.Point(3, 321);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(951, 32);
             this.panel2.TabIndex = 4;
+            // 
+            // NaturalProportionsCheckBox
+            // 
+            this.NaturalProportionsCheckBox.AutoSize = true;
+            this.NaturalProportionsCheckBox.Checked = true;
+            this.NaturalProportionsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.NaturalProportionsCheckBox.Dock = System.Windows.Forms.DockStyle.Left;
+            this.NaturalProportionsCheckBox.Location = new System.Drawing.Point(191, 0);
+            this.NaturalProportionsCheckBox.Name = "NaturalProportionsCheckBox";
+            this.NaturalProportionsCheckBox.Size = new System.Drawing.Size(240, 32);
+            this.NaturalProportionsCheckBox.TabIndex = 3;
+            this.NaturalProportionsCheckBox.Text = "Натуральные пропорции";
+            this.NaturalProportionsCheckBox.UseVisualStyleBackColor = true;
+            this.NaturalProportionsCheckBox.CheckedChanged += new System.EventHandler(this.NaturalProportionsCheckBox_CheckedChanged);
             // 
             // ShowFunctionCheckBox
             // 
@@ -676,12 +690,10 @@
             // QualityChart
             // 
             chartArea3.AxisX.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea3.AxisX.Minimum = 0D;
             chartArea3.AxisX.Title = "x";
             chartArea3.AxisX.TitleAlignment = System.Drawing.StringAlignment.Far;
             chartArea3.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             chartArea3.AxisY.ArrowStyle = System.Windows.Forms.DataVisualization.Charting.AxisArrowStyle.Triangle;
-            chartArea3.AxisY.Minimum = 0D;
             chartArea3.AxisY.TextOrientation = System.Windows.Forms.DataVisualization.Charting.TextOrientation.Horizontal;
             chartArea3.AxisY.Title = "Loss";
             chartArea3.AxisY.TitleAlignment = System.Drawing.StringAlignment.Far;
@@ -725,20 +737,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(1285, 749);
             this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 2;
-            // 
-            // RealPropportionsCheckBox
-            // 
-            this.RealPropportionsCheckBox.AutoSize = true;
-            this.RealPropportionsCheckBox.Checked = true;
-            this.RealPropportionsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.RealPropportionsCheckBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.RealPropportionsCheckBox.Location = new System.Drawing.Point(191, 0);
-            this.RealPropportionsCheckBox.Name = "RealPropportionsCheckBox";
-            this.RealPropportionsCheckBox.Size = new System.Drawing.Size(212, 32);
-            this.RealPropportionsCheckBox.TabIndex = 3;
-            this.RealPropportionsCheckBox.Text = "Реальные пропорции";
-            this.RealPropportionsCheckBox.UseVisualStyleBackColor = true;
-            this.RealPropportionsCheckBox.CheckedChanged += new System.EventHandler(this.RealPropportionsCheckBox_CheckedChanged);
             // 
             // GUIControl
             // 
@@ -840,7 +838,7 @@
         private System.Windows.Forms.Label LabelIn2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.CheckBox RealPropportionsCheckBox;
+        private System.Windows.Forms.CheckBox NaturalProportionsCheckBox;
     }
 }
 

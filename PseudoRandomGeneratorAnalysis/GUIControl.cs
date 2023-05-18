@@ -117,17 +117,16 @@ namespace PseudoRandomGeneratorAnalysis {
                     maxValue = dataX.Value;
                 }
             }
-            double scaler = (double)maxValue / randCount;
             foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
-                double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue) * scaler;
+                double difference = (double)i.Value.Key / randCount - i.Value.Value;
                 differenceSeries.Points.AddXY(i.Key, difference);
-                perfectSeries.Points.AddXY(i.Key, i.Value.Value / maxPerfectValue * scaler);
+                perfectSeries.Points.AddXY(i.Key, i.Value.Value);
             }
             int xMin = data.Keys.Min();
             int xMax = data.Keys.Max();
             for (int x = xMin; x <= xMax; x++) {
                 if (!data.Keys.Contains(x)) {
-                    perfectSeries.Points.AddXY(x, generator.CoreFunction(x) / maxPerfectValue * scaler);
+                    perfectSeries.Points.AddXY(x, generator.CoreFunction(x));
                 }
             }
             QualityChart.Series.Add(differenceSeries);
@@ -141,14 +140,30 @@ namespace PseudoRandomGeneratorAnalysis {
             double amplitude = Math.Max(Math.Abs(parameter_m - dmin), (parameter_m - dmax));
             int min = (int)(parameter_m - amplitude) / 10 * 10;
             int max = ((int)(parameter_m + amplitude) / 10 + 1) * 10;
+            DistributionChart.Update();
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = min;
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Maximum = max;
             IntegralChart.ChartAreas["IntegralArea"].AxisX.Minimum = min;
             IntegralChart.ChartAreas["IntegralArea"].AxisX.Maximum = max;
             QualityChart.ChartAreas["QualityArea"].AxisX.Minimum = min;
             QualityChart.ChartAreas["QualityArea"].AxisX.Maximum = max;
-            if (RealPropportionsCheckBox.Checked) {
-                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = DistributionChart.ChartAreas["DistributionArea"].AxisY.Maximum;
+            CorrectQualityChartZoom();
+        }
+
+        private void CorrectQualityChartZoom() {
+            if (NaturalProportionsCheckBox.Checked) {
+                double amplitude = DistributionChart.ChartAreas["DistributionArea"].AxisY.Maximum / 2;
+                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = amplitude;
+                QualityChart.ChartAreas["QualityArea"].AxisY.Minimum = -amplitude;
+            } else {
+                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = double.NaN;
+                QualityChart.ChartAreas["QualityArea"].AxisY.Minimum = double.NaN;
+                //QualityChart.Update();
+                //double top = QualityChart.ChartAreas["QualityArea"].AxisY.Maximum;
+                //double bottom = QualityChart.ChartAreas["QualityArea"].AxisY.Minimum;
+                //double shift = (top + bottom) / 2;
+                //QualityChart.ChartAreas["QualityArea"].AxisY.Maximum -= shift;
+                //QualityChart.ChartAreas["QualityArea"].AxisY.Minimum -= shift;
             }
         }
 
@@ -211,7 +226,6 @@ namespace PseudoRandomGeneratorAnalysis {
                     AddIntegralDataToChart(data, randCount);
                     AddQualityDataToChart(data, randCount, generator);
                     CalcStats(data, randCount);
-                    DistributionChart.Update();
                     CorrectChartsZoom(data, generator.GetParameterM());
                     EnableControls(true);
                 }));
@@ -280,12 +294,8 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        private void RealPropportionsCheckBox_CheckedChanged(object sender, EventArgs e) {
-            if ((sender as CheckBox).Checked) {
-                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = DistributionChart.ChartAreas["DistributionArea"].AxisY.Maximum;
-            } else {
-                QualityChart.ChartAreas["QualityArea"].AxisY.Maximum = double.NaN;
-            }
+        private void NaturalProportionsCheckBox_CheckedChanged(object sender, EventArgs e) {
+            CorrectQualityChartZoom();
         }
         
         private void Test_AI() {
