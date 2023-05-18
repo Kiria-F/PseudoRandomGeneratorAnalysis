@@ -107,22 +107,28 @@ namespace PseudoRandomGeneratorAnalysis {
             double maxPerfectValue = 0;
             ulong maxValue = 0;
             Dictionary<double, KVPair<ulong, double>> comparasions = new Dictionary<double, KVPair<ulong, double>>();
-            foreach (KeyValuePair<int, ulong> i in data) {
-                double perfectValue = generator.CoreFunction(i.Key);
-                comparasions.Add(i.Key, new KVPair<ulong, double>(i.Value, perfectValue));
+            foreach (KeyValuePair<int, ulong> dataX in data) {
+                double perfectValue = generator.CoreFunction(dataX.Key);
+                comparasions.Add(dataX.Key, new KVPair<ulong, double>(dataX.Value, perfectValue));
                 if (perfectValue > maxPerfectValue) {
                     maxPerfectValue = perfectValue;
                 }
-                if (i.Value > maxValue) {
-                    maxValue = i.Value;
+                if (dataX.Value > maxValue) {
+                    maxValue = dataX.Value;
                 }
             }
-
             double scaler = (double)maxValue / randCount;
             foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
                 double difference = Math.Abs((double)i.Value.Key / maxValue - i.Value.Value / maxPerfectValue) * scaler;
                 differenceSeries.Points.AddXY(i.Key, difference);
                 perfectSeries.Points.AddXY(i.Key, i.Value.Value / maxPerfectValue * scaler);
+            }
+            int xMin = data.Keys.Min();
+            int xMax = data.Keys.Max();
+            for (int x = xMin; x <= xMax; x++) {
+                if (!data.Keys.Contains(x)) {
+                    perfectSeries.Points.AddXY(x, generator.CoreFunction(x) / maxPerfectValue * scaler);
+                }
             }
             QualityChart.Series.Add(differenceSeries);
             perfectSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
