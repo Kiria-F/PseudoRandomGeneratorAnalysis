@@ -32,6 +32,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 GeneratorChoose.Items.Add(generator.name);
             }
             GeneratorChoose.SelectedIndex = 0;
+            Generator.SetLogsOutput(ConsoleWrite);
         }
 
         private String SplitLongNumber(String num) {

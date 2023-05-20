@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -8,6 +9,7 @@ using System.Windows.Forms;
 namespace PseudoRandomGeneratorAnalysis {
 
     abstract class Generator {
+        protected static Action<string> logsOutput;
         protected static readonly Random random = new Random();
         public string name;
         public readonly Dictionary<string, Panel> controls;
@@ -19,6 +21,10 @@ namespace PseudoRandomGeneratorAnalysis {
             controls = new Dictionary<string, Panel>();
             AddNewControl("Мат. ожидание", "m", 50M, 3);
             AddNewControl("СКв отклонение", "si", 10M, 3, 0M);
+        }
+
+        public static void SetLogsOutput(Action<string> logsOutput) {
+            Generator.logsOutput = logsOutput;
         }
 
         protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
@@ -143,7 +149,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public GrandCLTGenerator() : base() {
             name = "Идеальный генератор";
-            AddNewControl("Исп. последовательности", "n", 10M, 3);
+            AddNewControl("Исп. посл-ей", "n", 10M, 3);
         }
 
         public override void CollectParameterValues() {
@@ -286,7 +292,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public override void Prepare() {
             calcedN = 1 + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
-            //calcedN = parameter_si;
+            logsOutput("Calced N = " + calcedN.ToString());
         }
 
         public override double Next() {
