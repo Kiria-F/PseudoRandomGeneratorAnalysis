@@ -165,7 +165,7 @@ namespace PseudoRandomGeneratorAnalysis {
             }
             double rest = (parameterN - iParameterN) * random.NextDouble();
             sum += rest;
-            return sum / parameterN;
+            return sum;
         }
 
         private void CalcPreSi(Dictionary<double, ulong> preData) {
@@ -196,7 +196,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private int Modificate2I(double x) {
-            double gen = (x - 0.5D) * parameter_si / preSi + parameter_m;
+            double gen = (x - parameterN / 2) * parameter_si / preSi + parameter_m;
             if (gen < -0.5) {
                 gen -= 1;
             }
@@ -206,7 +206,7 @@ namespace PseudoRandomGeneratorAnalysis {
         private Dictionary<int, ulong> ModificateSequence2I(Dictionary<double, ulong> preData) {
             Dictionary<int, ulong> data = new Dictionary<int, ulong>();
             foreach (KeyValuePair<double, ulong> kvp in preData) {
-                int iGen = Modificate2I(kvp.Key); // 1 -> preSi
+                int iGen = Modificate2I(kvp.Key);
                 data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + kvp.Value : kvp.Value;
             }
             return data;
