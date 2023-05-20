@@ -83,7 +83,6 @@ namespace PseudoRandomGeneratorAnalysis {
                 }
                 step *= stepMultiplier;
             }
-            return pos;
         }
 
         private static double FindClosestMin(
