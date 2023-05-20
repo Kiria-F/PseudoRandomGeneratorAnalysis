@@ -241,33 +241,32 @@ namespace PseudoRandomGeneratorAnalysis {
     class DynamicNCLTGenerator : Generator {
         protected double parameterA;
         protected double parameterB;
-        protected double parameterC;
         protected double calcedN;
 
         public DynamicNCLTGenerator() : base() {
             name = "Генератор на динамическом N";
-            AddNewControl("параметр a", "a", 0.288077825M, 9);
-            AddNewControl("параметр b", "b", -0.4988888129M, 9);
-            AddNewControl("параметр c", "c", 0M, 9);
+            AddNewControl("параметр a", "a", 1.8456679511M /*0.288077825M*/, 9);
+            AddNewControl("параметр b", "b", -0.36761M /*-0.4988888129M*/, 9);
         }
 
         public override void CollectParameterValues() {
             base.CollectParameterValues();
             parameterA = (double)(controls["a"].Tag as NumericUpDown).Value;
             parameterB = (double)(controls["b"].Tag as NumericUpDown).Value;
-            parameterC = (double)(controls["c"].Tag as NumericUpDown).Value;
         }
 
-        public void SetParameters(double parameterA, double parameterB, double parameterC) {
+        public void SetParameters(double parameterA, double parameterB) {
             this.parameterA = parameterA;
             this.parameterB = parameterB;
-            this.parameterC = parameterC;
         }
 
         public void SetParameters(double[] parameters) {
             parameterA = parameters[0];
             parameterB = parameters[1];
-            parameterC = parameters[2];
+        }
+
+        public void SetSi(double si) {
+            parameter_si = si;
         }
 
         public double GetCalcedN() {
@@ -286,12 +285,12 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            //calcedN = parameterC + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
-            calcedN = parameter_si;
+            calcedN = 1 + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
+            //calcedN = parameter_si;
         }
 
         public override double Next() {
-            return NormalNext(); // / calcedN;
+            return NormalNext() - (calcedN / 2) + parameter_m; // / calcedN;
         }
     }
 

@@ -297,19 +297,22 @@ namespace PseudoRandomGeneratorAnalysis {
         private void NaturalProportionsCheckBox_CheckedChanged(object sender, EventArgs e) {
             CorrectQualityChartZoom();
         }
-        
+
         private void Test_AI() {
+            EnableControls(false);
             ulong randCount = (ulong)InputCount.Value;
             double[] fitResult;
             new Task(() => {
-                fitResult = Fitter.Fit(
-                    new string[] { "a", "b", "c" },
-                    new double[] { 0, -100, -100 },
-                    new double[] { 100, 0, 100 },
+                fitResult = Fitter.FitGrad(
+                    new string[] { "a", "b" },
+                    new double[] { 1.8456679511, -0.36761 },
+                    3, 20,
                     (double[] parameters) => {
                         double loss = 0;
-                        for (int controlI = 0; controlI < 4; controlI++) {
+                        //Parallel.For(2, 5, (int si) => {
+                        double si = 3.5;
                             DynamicNCLTGenerator generator = new DynamicNCLTGenerator();
+                            generator.SetSi(si);
                             generator.SetParameters(parameters);
                             generator.Prepare();
                             Dictionary<int, ulong> data = generator.ISequence(randCount);
@@ -323,24 +326,28 @@ namespace PseudoRandomGeneratorAnalysis {
                                 d += underSqr * underSqr * i.Value;
                             }
                             d /= randCount;
-                            double si = Math.Sqrt(d);
-                            loss += Math.Abs(si - generator.GetCalcedN());
-                        }
+                            double siExp = Math.Sqrt(d);
+                            loss += Math.Abs(si - siExp);
+                        //});
                         return loss;
                     },
                     (string text) => {
-                        ActiveForm.Invoke((Action)(() => ConsoleWrite(text)));
+                        Invoke((Action)(() => ConsoleWrite(text)));
                     },
                     (double val1) => {
-                        ActiveForm.Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
+                        Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
                     },
                     (Dictionary<string, double> leaderParams) => {
-                        ActiveForm.Invoke((Action)(() => {
+                        Invoke((Action)(() => {
                             foreach (KeyValuePair<string, double> leaderParam in leaderParams) {
                                 ((NumericUpDown)generators[1].controls[leaderParam.Key].Tag).Value = (decimal)leaderParam.Value;
                             }
                         }));
                     });
+                Invoke((Action)(() => {
+                    Console.WriteLine("\n\nRESULT: " + fitResult.ToString());
+                    EnableControls(true);
+                }));
             }).Start();
         }
 
@@ -349,7 +356,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ButtonTest_Click(object sender, EventArgs e) {
-            Test_2text();
+            Test_AI();
         }
 
         private void GUIControl_SizeChanged(object sender, EventArgs e) {
