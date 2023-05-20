@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -19,14 +20,111 @@ namespace PseudoRandomGeneratorAnalysis {
         public static int genSize = 150;
         public static int selectedGenSize = 30;
 
-        public static double[] Fit(
-            string[] paramNames,
-            double[] minVals,
-            double[] maxVals,
-            Func<double[], double> minFun,
-            Action<string> logsOutput,
-            Action<double> progressOutput,
-            Action<Dictionary<string, double>> leaderControl) {
+        public static int iterations = 1000;
+        public static double stepMultiplier = 0.95;
+
+        public static double[] FitGrad(
+                string[] paramNames,
+                double[] startPos,
+                double siMin,
+                double siMax,
+                Func<double[], double> minFun,
+                Action<string> logsOutput,
+                Action<double> progressOutput,
+                Action<Dictionary<string, double>> leaderControl) {
+            int paramsCount = paramNames.Length;
+            double[] pos = startPos.Clone() as double[];
+            double step = 0.0001;
+            double minY = double.NaN;
+            double lossDelta = double.NaN;
+            for (int iteration = 0; true; iteration++) {
+                for (int direction = 0; direction < paramsCount; direction++) {
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    var cancellationToken = cancellationTokenSource.Token;
+                    Task task = Task.Run(() => {
+                        pos[direction] = FindClosestMin(
+                            cancellationToken,
+                            (double x) => {
+                                try {
+                                    pos[direction] = x;
+                                } catch (IndexOutOfRangeException) {
+                                    logsOutput(" ==Error== \n");
+                                }
+                                //si = si + (siMax - siMin) * 0.05;
+                                //if (si > siMax) {
+                                //    si = si - siMax - siMin;
+                                //}
+                                return minFun(pos);
+                            },
+                            pos[direction],
+                            step,
+                            progressOutput,
+                            out double minYInner);
+                        lossDelta = minYInner - minY;
+                        minY = minYInner;
+                    }, cancellationToken);
+                    if (!task.Wait(TimeSpan.FromSeconds(120))) {
+                        cancellationTokenSource.Cancel();
+                        logsOutput(" ==Canceled== \n");
+                        task.Wait();
+                    }
+                    task.Dispose();
+                    string stats = "";
+                    for (int paramI = 0; paramI < paramsCount; paramI++) {
+                        stats += paramNames[paramI] + " : " + pos[paramI] + "\n";
+                    }
+                    logsOutput(
+                        "ITERATION " + " : " + iteration +
+                        "\nStep = " + step +
+                        "\n" + stats +
+                        "Loss: " + minY +
+                        "\nLoss delta: " + lossDelta + "\n\n");
+                    progressOutput((double)iteration / iterations * direction / paramsCount);
+                }
+                step *= stepMultiplier;
+            }
+            return pos;
+        }
+
+        private static double FindClosestMin(
+                CancellationToken cancellationToken,
+                Func<double, double> function,
+                double startPos,
+                double step,
+                Action<double> progressOutput,
+                out double minY) {
+            double minX = startPos;
+            double progress = 0;
+            minY = function(startPos);
+            if (cancellationToken.IsCancellationRequested) return minX;
+            if (function(startPos + step) > minY) {
+                step *= -1;
+            }
+            if (cancellationToken.IsCancellationRequested) return minX;
+            progress = progress + (1 - progress) * 0.1;
+            progressOutput(progress);
+            double x = minX + step;
+            double y = function(x);
+            while (y < minY) {
+                if (cancellationToken.IsCancellationRequested) return minX;
+                minX = x;
+                minY = y;
+                x += step;
+                y = function(x);
+                progress = progress + (1 - progress) * 0.1;
+                progressOutput(progress);
+            }
+            return minX;
+        }
+
+        public static double[] FitGen(
+                string[] paramNames,
+                double[] minVals,
+                double[] maxVals,
+                Func<double[], double> minFun,
+                Action<string> logsOutput,
+                Action<double> progressOutput,
+                Action<Dictionary<string, double>> leaderControl) {
             int paramsCount = paramNames.Length;
             Sheep[] generation = new Sheep[genSize];
             for (int sheepI = 0; sheepI < genSize; sheepI++) {
