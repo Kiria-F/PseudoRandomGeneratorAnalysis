@@ -139,7 +139,7 @@ namespace PseudoRandomGeneratorAnalysis {
         private void CorrectChartsZoom(Dictionary<int, ulong> data, double parameter_m) {
             double dmin = data.Keys.Min();
             double dmax = data.Keys.Max();
-            double amplitude = Math.Max(Math.Abs(parameter_m - dmin), (parameter_m - dmax));
+            double amplitude = Math.Max(Math.Abs(parameter_m - dmin), Math.Abs(parameter_m - dmax));
             int min = (int)(parameter_m - amplitude) / 10 * 10;
             int max = ((int)(parameter_m + amplitude) / 10 + 1) * 10;
             DistributionChart.Update();
@@ -283,8 +283,8 @@ namespace PseudoRandomGeneratorAnalysis {
         private void GeneratorChoose_SelectedIndexChanged(object sender, EventArgs e) {
             int currentIndex = (sender as ComboBox).SelectedIndex;
             InputContainer.Controls.Clear();
-            foreach (KeyValuePair<string, Panel> controlWrapper in generators[currentIndex].controls) {
-                InputContainer.Controls.Add(controlWrapper.Value);
+            foreach (Panel controlWrapper in generators[currentIndex].controls.Values.Reverse()) {
+                InputContainer.Controls.Add(controlWrapper);
             }
         }
 
