@@ -76,7 +76,20 @@ namespace PseudoRandomGeneratorAnalysis {
             parameter_si = (double)(controls["si"].Tag as NumericUpDown).Value;
         }
 
-        public virtual Dictionary<int, ulong> ISequence(ulong randCount) {
+        protected virtual double NormalNext(double n) {
+            double sum = 0;
+            ulong nInt = (ulong)n;
+            for (ulong i = 0; i < n; i++) {
+                sum += random.NextDouble();
+            }
+            double rest = random.NextDouble();
+            if (rest < n - nInt) {
+                sum += rest;
+            }
+            return sum;
+        }
+
+        public virtual Dictionary<int, ulong> Sequence(ulong randCount) {
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
                 double gen = Next();
@@ -89,7 +102,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return sequence;
         }
 
-        public virtual Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
+        public virtual Dictionary<int, ulong> Sequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
                 double gen = Next() * (rightEdge - leftEdge) + leftEdge;
@@ -117,6 +130,30 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public double GetParameterM() {
             return parameter_m;
+        }
+    }
+
+    class BasicGenerator : Generator {
+        protected double parameterN;
+
+        public BasicGenerator() {
+            name = "Базовый генератор";
+            AddNewControl("N", "n", 50M, 0);
+        }
+
+        public override void CollectParameterValues() {
+            base.CollectParameterValues();
+            parameterN = (double)(controls["n"].Tag as NumericUpDown).Value;
+        }
+
+        public void SetN(double n) {
+            parameterN = n;
+        }
+
+        public override void Prepare() { }
+
+        public override double Next() {
+            return NormalNext(parameterN);
         }
     }
 
@@ -157,17 +194,6 @@ namespace PseudoRandomGeneratorAnalysis {
             parameterN = (double)(controls["n"].Tag as NumericUpDown).Value;
         }
 
-        protected double NormalNext() {
-            double sum = 0;
-            ulong iParameterN = (ulong)parameterN;
-            for (ulong i = 0; i < iParameterN; i++) {
-                sum += random.NextDouble();
-            }
-            double rest = (parameterN - iParameterN) * random.NextDouble();
-            sum += rest;
-            return sum;
-        }
-
         private void CalcPreSi(Dictionary<double, ulong> preData) {
             double pre_m = 0, pre_d = 0;
             foreach (KeyValuePair<double, ulong> kvp in preData) {
@@ -185,7 +211,7 @@ namespace PseudoRandomGeneratorAnalysis {
         private Dictionary<double, ulong> NormalSequence(ulong randCount) {
             Dictionary<double, ulong> data = new Dictionary<double, ulong>();
             for (ulong i = 0; i < randCount; i++) {
-                double x = NormalNext();
+                double x = NormalNext(parameterN);
                 if (data.ContainsKey(x)) {
                     data[x]++;
                 } else {
@@ -223,14 +249,14 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount) {
+        public override Dictionary<int, ulong> Sequence(ulong randCount) {
             Dictionary<double, ulong> preData = NormalSequence(randCount);
             CalcPreSi(preData);
             Dictionary<int, ulong> data = ModificateSequence2I(preData);
             return data;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
+        public override Dictionary<int, ulong> Sequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<double, ulong> preData = NormalSequence(randCount);
             CalcPreSi(preData);
             Dictionary<int, ulong> data = ModificateSequence2I(preData, leftEdge, rightEdge);
@@ -251,8 +277,8 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public DynamicNCLTGenerator() : base() {
             name = "Генератор на динамическом N";
-            AddNewControl("параметр a", "a", 1.8456679511M /*0.288077825M*/, 9);
-            AddNewControl("параметр b", "b", -0.36761M /*-0.4988888129M*/, 9);
+            AddNewControl("параметр a", "a", 0.3153M /*1.8456679511M*/ /*0.288077825M*/, 9);
+            AddNewControl("параметр b", "b", 0.4798M /*-0.36761M*/ /*-0.4988888129M*/, 9);
         }
 
         public override void CollectParameterValues() {
@@ -261,42 +287,17 @@ namespace PseudoRandomGeneratorAnalysis {
             parameterB = (double)(controls["b"].Tag as NumericUpDown).Value;
         }
 
-        public void SetParameters(double parameterA, double parameterB) {
-            this.parameterA = parameterA;
-            this.parameterB = parameterB;
-        }
-
-        public void SetParameters(double[] parameters) {
-            parameterA = parameters[0];
-            parameterB = parameters[1];
-        }
-
-        public void SetSi(double si) {
-            parameter_si = si;
-        }
-
         public double GetCalcedN() {
             return calcedN;
         }
 
-        protected double NormalNext() {
-            double sum = 0;
-            ulong ICalcedN = (ulong)calcedN;
-            for (ulong i = 0; i < calcedN; i++) {
-                sum += random.NextDouble();
-            }
-            double rest = (calcedN - ICalcedN) * random.NextDouble();
-            sum += rest;
-            return sum;
-        }
-
         public override void Prepare() {
-            calcedN = 1 + Math.Pow(1 / parameter_si / parameterA, 1 / parameterB);
+            calcedN = Math.Pow(parameter_si / parameterA, 1 / parameterB);
             logsOutput("Calced N = " + calcedN.ToString());
         }
 
         public override double Next() {
-            return NormalNext() - (calcedN / 2) + parameter_m; // / calcedN;
+            return NormalNext(calcedN) - (calcedN / 2) + parameter_m;
         }
     }
 
@@ -335,7 +336,7 @@ namespace PseudoRandomGeneratorAnalysis {
             return (x - 0.5D) * parameter_si / preSi + parameter_m;
         }
 
-        public override Dictionary<int, ulong> ISequence(ulong randCount, int leftEdge, int rightEdge) {
+        public override Dictionary<int, ulong> Sequence(ulong randCount, int leftEdge, int rightEdge) {
             Dictionary<int, ulong> data = new Dictionary<int, ulong>();
 
             double preSi = parameterA * Math.Pow(parameterN, parameterB);

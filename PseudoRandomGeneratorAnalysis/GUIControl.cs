@@ -21,7 +21,8 @@ namespace PseudoRandomGeneratorAnalysis {
         private Generator[] generators = new Generator[] {
             new GrandCLTGenerator(),
             new DynamicNCLTGenerator(),
-            new ConstNCLTGenerator()
+            new ConstNCLTGenerator(),
+            new BasicGenerator()
         };
 
         public GUIControl() {
@@ -32,7 +33,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 GeneratorChoose.Items.Add(generator.name);
             }
             GeneratorChoose.SelectedIndex = 0;
-            Generator.SetLogsOutput(ConsoleWrite);
+            Generator.SetLogsOutput((string text) => { Invoke((Action)(() => { ConsoleWrite(text); })); });
         }
 
         private String SplitLongNumber(String num) {
@@ -212,7 +213,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 generator.Prepare();
                 int millis1 = DateTime.Now.Millisecond;
                 int seconds1 = DateTime.Now.Second;
-                Dictionary<int, ulong> data = generator.ISequence(randCount);
+                Dictionary<int, ulong> data = generator.Sequence(randCount);
                 int millis2 = DateTime.Now.Millisecond;
                 int seconds2 = DateTime.Now.Second;
                 if (seconds2 < seconds1) {
@@ -313,10 +314,10 @@ namespace PseudoRandomGeneratorAnalysis {
                         //Parallel.For(2, 5, (int si) => {
                         double si = 3.5;
                             DynamicNCLTGenerator generator = new DynamicNCLTGenerator();
-                            generator.SetSi(si);
-                            generator.SetParameters(parameters);
+                            //generator.SetSi(si);
+                            //generator.SetParameters(parameters);
                             generator.Prepare();
-                            Dictionary<int, ulong> data = generator.ISequence(randCount);
+                            Dictionary<int, ulong> data = generator.Sequence(randCount);
                             double m = 0, d = 0;
                             foreach (KeyValuePair<int, ulong> i in data) {
                                 m += (double)i.Key * i.Value;
@@ -353,11 +354,45 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void Test_2text() {
-
+            BasicGenerator generator = generators.Last() as BasicGenerator;
+            ulong N = (ulong)InputCount.Value;
+            new Task(() => {
+                Random random = new Random();
+                TextWriter xs = new StreamWriter(new FileStream("f22xs.txt", FileMode.OpenOrCreate, FileAccess.Write));
+                TextWriter ys = new StreamWriter(new FileStream("f22ys.txt", FileMode.OpenOrCreate, FileAccess.Write));
+                TextWriter ps = new StreamWriter(new FileStream("f22ps.json", FileMode.OpenOrCreate, FileAccess.Write));
+                for (int n = 1; n < 100; n++) {
+                    generator.SetN(n);
+                    Dictionary<int, ulong> data = generator.Sequence(N);
+                    double m = 0, d = 0;
+                    foreach (KeyValuePair<int, ulong> i in data) {
+                        m += (double)i.Key * i.Value;
+                    }
+                    m /= N;
+                    foreach (KeyValuePair<int, ulong> i in data) {
+                        double underSqr = i.Key - m;
+                        d += underSqr * underSqr * i.Value;
+                    }
+                    d /= N;
+                    double si = Math.Sqrt(d);
+                    ps.Write("{ \"x\": " + (n).ToString().Replace(',', '.') + ", \"y\": " + (si).ToString().Replace(',', '.') + " }, ");
+                    xs.Write(n.ToString().Replace(',', '.') + " ");
+                    ys.Write((si).ToString().Replace(',', '.') + " ");
+                    
+                    Invoke((Action)(() => { ConsoleSetProgress((int)(n * 10)); }));
+                }
+                xs.Close();
+                ys.Close();
+                ps.Close();
+                Invoke((Action)(() => {
+                    ConsoleWrite("DONE");
+                    ConsoleSetProgress(0);
+                }));
+            }).Start();
         }
 
         private void ButtonTest_Click(object sender, EventArgs e) {
-            Test_AI();
+            Test_2text();
         }
 
         private void GUIControl_SizeChanged(object sender, EventArgs e) {
