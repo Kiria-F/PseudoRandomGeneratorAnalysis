@@ -29,6 +29,7 @@ namespace PseudoRandomGeneratorAnalysis {
             }
             GeneratorChoose.SelectedIndex = 0;
             Generator.SetLogsOutput((string text) => { Invoke((Action)(() => { ConsoleWrite(text); })); });
+            Generator.SetProgressOutput((double progress) => { Invoke((Action)(() => { ConsoleSetProgress(progress); })); });
         }
 
         private String SplitLongNumber(String num) {
@@ -235,11 +236,16 @@ namespace PseudoRandomGeneratorAnalysis {
             Run(false);
         }
 
-        private void ConsoleSetProgress(int val1000) {
-            if (val1000 == lastProgressVal) {
+        private void ConsoleSetProgress(double progress) {
+            int intProgress = (int) (progress * 1000);
+            if (intProgress == lastProgressVal) {
                 return;
             }
-            MyConsoleProgressBar.Value = val1000;
+            if (intProgress > 1000) {
+                intProgress = 1000;
+            }
+            MyConsoleProgressBar.Value = intProgress;
+            lastProgressVal = intProgress;
         }
 
         private void ConsoleWrite(string text) {
@@ -334,7 +340,7 @@ namespace PseudoRandomGeneratorAnalysis {
                         Invoke((Action)(() => ConsoleWrite(text)));
                     },
                     (double val1) => {
-                        Invoke((Action)(() => ConsoleSetProgress(Math.Min((int)(val1 * 1000D), 1000))));
+                        Invoke((Action)(() => ConsoleSetProgress(val1)));
                     },
                     (Dictionary<string, double> leaderParams) => {
                         Invoke((Action)(() => {

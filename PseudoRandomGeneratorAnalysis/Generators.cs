@@ -10,6 +10,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
     abstract class Generator {
         protected static Action<string> logsOutput;
+        protected static Action<double> progressOutput;
         protected static readonly Random random = new Random();
         public string name;
         public readonly Dictionary<string, Panel> controls;
@@ -25,6 +26,10 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public static void SetLogsOutput(Action<string> logsOutput) {
             Generator.logsOutput = logsOutput;
+        }
+
+        public static void SetProgressOutput(Action<double> progressOutput) {
+            Generator.progressOutput = progressOutput;
         }
 
         protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
@@ -92,6 +97,7 @@ namespace PseudoRandomGeneratorAnalysis {
         public virtual Dictionary<int, ulong> Sequence(ulong randCount) {
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
+                progressOutput(i / randCount);
                 double gen = Next();
                 if (gen < -0.5) {
                     gen -= 1;
@@ -137,7 +143,7 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double parameterN;
 
         public BasicGenerator() {
-            name = "Базовый генератор";
+            name = "Базовый";
             AddNewControl("N", "n", 50M, 0);
         }
 
@@ -185,7 +191,7 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double preSi;
 
         public GrandCLTGenerator() : base() {
-            name = "Идеальный генератор";
+            name = "Идеальный";
             AddNewControl("Исп. посл-ей", "n", 10M, 3);
         }
 
@@ -276,7 +282,7 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double calcedN;
 
         public StaticCLTGenerator() : base() {
-            name = "Одношаговый";
+            name = "Стат. одношаговый";
             AddNewControl("параметр a", "a", 0.3153M /*1.8456679511M*/ /*0.288077825M*/, 9);
             AddNewControl("параметр b", "b", 0.4798M /*-0.36761M*/ /*-0.4988888129M*/, 9);
         }
@@ -305,12 +311,12 @@ namespace PseudoRandomGeneratorAnalysis {
         protected double parameterA;
         protected double parameterB;
         protected double parameterN;
-        protected double preSi;
+        protected double modificator;
 
         public DynamicCLTGenerator() : base() {
-            name = "Генератор на ранней мутации";
-            AddNewControl("параметр a", "a", 0.32836905M /*0.288077825M*/, 9);
-            AddNewControl("параметр b", "b", 0.47029645M /*-0.4988888129M*/, 9);
+            name = "Динам. одношаговый";
+            AddNewControl("параметр a", "a", 0.28882M, 9);
+            AddNewControl("параметр b", "b", 0.500000000M, 9);
             AddNewControl("Исп. последовательности", "n", 10M, 3);
         }
 
@@ -322,12 +328,12 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            preSi = parameterA * Math.Pow(parameterN, parameterB);
-            logsOutput(preSi.ToString() + "\n");
+            modificator = parameter_si / (parameterA * Math.Pow(parameterN, parameterB));
+            logsOutput(modificator.ToString() + "\n");
         }
 
         public override double Next() {
-            return (NormalNext(parameterN) - parameterN / 2) * parameter_si / preSi + parameter_m;
+            return (NormalNext(parameterN) - parameterN / 2) * modificator + parameter_m;
         }
     }
 
