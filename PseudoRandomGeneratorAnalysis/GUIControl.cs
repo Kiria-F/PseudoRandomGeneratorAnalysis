@@ -383,7 +383,7 @@ namespace PseudoRandomGeneratorAnalysis {
                     xs.WriteLine(n.ToString());
                     ys.WriteLine((si).ToString());
                     
-                    Invoke((Action)(() => { ConsoleSetProgress((int)(n / n_max * 1000)); }));
+                    Invoke((Action)(() => { ConsoleSetProgress(n / n_max); }));
                 }
                 xs.Close();
                 ys.Close();

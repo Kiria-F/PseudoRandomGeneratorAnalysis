@@ -97,7 +97,6 @@ namespace PseudoRandomGeneratorAnalysis {
         public virtual Dictionary<int, ulong> Sequence(ulong randCount) {
             Dictionary<int, ulong> sequence = new Dictionary<int, ulong>();
             for (ulong i = 0; i < randCount; i++) {
-                progressOutput(i / randCount);
                 double gen = Next();
                 if (gen < -0.5) {
                     gen -= 1;
@@ -329,7 +328,6 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public override void Prepare() {
             modificator = parameter_si / (parameterA * Math.Pow(parameterN, parameterB));
-            logsOutput(modificator.ToString() + "\n");
         }
 
         public override double Next() {
