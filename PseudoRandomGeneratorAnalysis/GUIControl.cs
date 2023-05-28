@@ -6,11 +6,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Runtime.InteropServices;
-using System.Xml.Xsl;
-using System.Windows.Forms.VisualStyles;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PseudoRandomGeneratorAnalysis {
 
@@ -20,8 +15,8 @@ namespace PseudoRandomGeneratorAnalysis {
 
         private Generator[] generators = new Generator[] {
             new GrandCLTGenerator(),
-            new DynamicNCLTGenerator(),
-            new ConstNCLTGenerator(),
+            new StaticCLTGenerator(),
+            new DynamicCLTGenerator(),
             new BasicGenerator()
         };
 
@@ -140,8 +135,9 @@ namespace PseudoRandomGeneratorAnalysis {
             double dmin = data.Keys.Min();
             double dmax = data.Keys.Max();
             double amplitude = Math.Max(Math.Abs(parameter_m - dmin), Math.Abs(parameter_m - dmax));
-            int min = (int)(parameter_m - amplitude) / 10 * 10;
-            int max = ((int)(parameter_m + amplitude) / 10 + 1) * 10;
+            amplitude = ((int)amplitude / 10 + 1) * 10;
+            int min = (int)(parameter_m - amplitude + 0.5);
+            int max = (int)(parameter_m + amplitude + 0.5);
             DistributionChart.Update();
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = min;
             DistributionChart.ChartAreas["DistributionArea"].AxisX.Maximum = max;
@@ -169,8 +165,9 @@ namespace PseudoRandomGeneratorAnalysis {
             }
         }
 
-        private void CalcStats(Dictionary<int, ulong> data, ulong randCount) {
-            double m = 0, d = 0;
+        private void CalcStats(Dictionary<int, ulong> data, ulong randCount, out double m, out double si) {
+            double d = 0;
+            m = 0;
             foreach (KeyValuePair<int, ulong> i in data) {
                 m += (double)i.Key * i.Value;
             }
@@ -180,7 +177,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 d += underSqr * underSqr * i.Value;
             }
             d /= randCount;
-            double si = Math.Sqrt(d);
+            si = Math.Sqrt(d);
             double leftBorder1 = m - si * 1, rightBorder1 = m + si * 1;
             double leftBorder2 = m - si * 2, rightBorder2 = m + si * 2;
             double leftBorder3 = m - si * 3, rightBorder3 = m + si * 3;
@@ -227,8 +224,8 @@ namespace PseudoRandomGeneratorAnalysis {
                     AddDistributionDataToChart(data, randCount);
                     AddIntegralDataToChart(data, randCount);
                     AddQualityDataToChart(data, randCount, generator);
-                    CalcStats(data, randCount);
-                    CorrectChartsZoom(data, generator.GetParameterM());
+                    CalcStats(data, randCount, out double m, out double si);
+                    CorrectChartsZoom(data, m);
                     EnableControls(true);
                 }));
             }).Start();
@@ -313,7 +310,7 @@ namespace PseudoRandomGeneratorAnalysis {
                         double loss = 0;
                         //Parallel.For(2, 5, (int si) => {
                         double si = 3.5;
-                            DynamicNCLTGenerator generator = new DynamicNCLTGenerator();
+                            StaticCLTGenerator generator = new StaticCLTGenerator();
                             //generator.SetSi(si);
                             //generator.SetParameters(parameters);
                             generator.Prepare();
@@ -361,7 +358,8 @@ namespace PseudoRandomGeneratorAnalysis {
                 TextWriter xs = new StreamWriter(new FileStream("f22xs.txt", FileMode.OpenOrCreate, FileAccess.Write));
                 TextWriter ys = new StreamWriter(new FileStream("f22ys.txt", FileMode.OpenOrCreate, FileAccess.Write));
                 TextWriter ps = new StreamWriter(new FileStream("f22ps.json", FileMode.OpenOrCreate, FileAccess.Write));
-                for (int n = 1; n < 100; n++) {
+                var n_max = 5;
+                for (double n = 1; n < n_max; n += 0.01) {
                     generator.SetN(n);
                     Dictionary<int, ulong> data = generator.Sequence(N);
                     double m = 0, d = 0;
@@ -376,10 +374,10 @@ namespace PseudoRandomGeneratorAnalysis {
                     d /= N;
                     double si = Math.Sqrt(d);
                     ps.Write("{ \"x\": " + (n).ToString().Replace(',', '.') + ", \"y\": " + (si).ToString().Replace(',', '.') + " }, ");
-                    xs.Write(n.ToString().Replace(',', '.') + " ");
-                    ys.Write((si).ToString().Replace(',', '.') + " ");
+                    xs.WriteLine(n.ToString());
+                    ys.WriteLine((si).ToString());
                     
-                    Invoke((Action)(() => { ConsoleSetProgress((int)(n * 10)); }));
+                    Invoke((Action)(() => { ConsoleSetProgress((int)(n / n_max * 1000)); }));
                 }
                 xs.Close();
                 ys.Close();

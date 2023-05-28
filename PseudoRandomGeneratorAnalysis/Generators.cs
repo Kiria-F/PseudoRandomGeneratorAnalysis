@@ -270,13 +270,13 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class DynamicNCLTGenerator : Generator {
+    class StaticCLTGenerator : Generator {
         protected double parameterA;
         protected double parameterB;
         protected double calcedN;
 
-        public DynamicNCLTGenerator() : base() {
-            name = "Генератор на динамическом N";
+        public StaticCLTGenerator() : base() {
+            name = "Одношаговый";
             AddNewControl("параметр a", "a", 0.3153M /*1.8456679511M*/ /*0.288077825M*/, 9);
             AddNewControl("параметр b", "b", 0.4798M /*-0.36761M*/ /*-0.4988888129M*/, 9);
         }
@@ -293,7 +293,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public override void Prepare() {
             calcedN = Math.Pow(parameter_si / parameterA, 1 / parameterB);
-            logsOutput("Calced N = " + calcedN.ToString());
+            logsOutput("Calced N = " + calcedN.ToString() + '\n') ;
         }
 
         public override double Next() {
@@ -301,16 +301,16 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class ConstNCLTGenerator : Generator {
+    class DynamicCLTGenerator : Generator {
         protected double parameterA;
         protected double parameterB;
         protected double parameterN;
         protected double preSi;
 
-        public ConstNCLTGenerator() : base() {
+        public DynamicCLTGenerator() : base() {
             name = "Генератор на ранней мутации";
-            AddNewControl("параметр a", "a", 0.288077825M, 9);
-            AddNewControl("параметр b", "b", -0.4988888129M, 9);
+            AddNewControl("параметр a", "a", 0.32836905M /*0.288077825M*/, 9);
+            AddNewControl("параметр b", "b", 0.47029645M /*-0.4988888129M*/, 9);
             AddNewControl("Исп. последовательности", "n", 10M, 3);
         }
 
@@ -321,45 +321,13 @@ namespace PseudoRandomGeneratorAnalysis {
             parameterN = (double)(controls["n"].Tag as NumericUpDown).Value;
         }
 
-        protected double NormalNext() {
-            double sum = 0;
-            ulong iParameterN = (ulong)parameterN;
-            for (ulong i = 0; i < iParameterN; i++) {
-                sum += random.NextDouble();
-            }
-            double rest = (parameterN - iParameterN) * random.NextDouble();
-            sum += rest;
-            return sum / parameterN;
-        }
-
-        private double Modificate(double x) {
-            return (x - 0.5D) * parameter_si / preSi + parameter_m;
-        }
-
-        public override Dictionary<int, ulong> Sequence(ulong randCount, int leftEdge, int rightEdge) {
-            Dictionary<int, ulong> data = new Dictionary<int, ulong>();
-
-            double preSi = parameterA * Math.Pow(parameterN, parameterB);
-
-            for (ulong i = 0; i < randCount; i++) {
-                double gen = Modificate(NormalNext());
-                if (gen < -0.5) {
-                    gen -= 1;
-                }
-                int iGen = (int)(gen + 0.5D);
-                if (iGen < leftEdge) { } else if (iGen > rightEdge) { } else {
-                    data[iGen] = data.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
-                }
-            }
-            return data;
-        }
-
         public override void Prepare() {
             preSi = parameterA * Math.Pow(parameterN, parameterB);
+            logsOutput(preSi.ToString() + "\n");
         }
 
         public override double Next() {
-            return Modificate(NormalNext());
+            return (NormalNext(parameterN) - parameterN / 2) * parameter_si / preSi + parameter_m;
         }
     }
 
