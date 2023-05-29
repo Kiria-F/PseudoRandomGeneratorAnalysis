@@ -374,6 +374,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 model[i].Value = (model[i].Value - model[0].Value) / yLast;
             }
         }
+        
         public override double Next() {
             double rand = random.NextDouble();
             int il = 0;
