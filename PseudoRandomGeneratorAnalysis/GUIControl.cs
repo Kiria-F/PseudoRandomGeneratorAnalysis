@@ -17,6 +17,7 @@ namespace PseudoRandomGeneratorAnalysis {
             new GrandCLTGenerator(),
             new StaticCLTGenerator(),
             new DynamicCLTGenerator(),
+            new ModelGenerator(),
             new BasicGenerator()
         };
 

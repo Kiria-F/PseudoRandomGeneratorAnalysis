@@ -14,8 +14,8 @@ namespace PseudoRandomGeneratorAnalysis {
         protected static readonly Random random = new Random();
         public string name;
         public readonly Dictionary<string, Panel> controls;
-        protected double parameter_m;
-        protected double parameter_si;
+        protected double parameterM;
+        protected double parameterSi;
 
         public Generator() {
             name = "Новый генератор";
@@ -77,8 +77,8 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public virtual void CollectParameterValues() {
-            parameter_m = (double)(controls["m"].Tag as NumericUpDown).Value;
-            parameter_si = (double)(controls["si"].Tag as NumericUpDown).Value;
+            parameterM = (double)(controls["m"].Tag as NumericUpDown).Value;
+            parameterSi = (double)(controls["si"].Tag as NumericUpDown).Value;
         }
 
         protected virtual double NormalNext(double n) {
@@ -122,19 +122,24 @@ namespace PseudoRandomGeneratorAnalysis {
             return sequence;
         }
 
-        public double CoreFunction(double x) {
-            double a = 1d / parameter_si / Math.Sqrt(2 * Math.PI);
-            double z = -1d / 2 / parameter_si / parameter_si;
-            x -= parameter_m;
-            return a * Math.Pow(Math.E, x * x * z);
+        public Func<double, double> CoreFunction;
+
+        public void RecalcCoreFunction() {
+            double a = 1d / parameterSi / Math.Sqrt(2 * Math.PI);
+            double b = parameterM;
+            double c = parameterSi;
+            double z = -1d / 2 / c / c;
+            CoreFunction = (x) => { x -= b; return a * Math.Pow(Math.E, x * x * z); };
         }
 
-        public abstract void Prepare();
+        public virtual void Prepare() {
+            RecalcCoreFunction();
+        }
 
         public abstract double Next();
 
         public double GetParameterM() {
-            return parameter_m;
+            return parameterM;
         }
     }
 
@@ -154,8 +159,6 @@ namespace PseudoRandomGeneratorAnalysis {
         public void SetN(double n) {
             parameterN = n;
         }
-
-        public override void Prepare() { }
 
         public override double Next() {
             return NormalNext(parameterN);
@@ -227,7 +230,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private int Modificate2I(double x) {
-            double gen = (x - parameterN / 2) * parameter_si / preSi + parameter_m;
+            double gen = (x - parameterN / 2) * parameterSi / preSi + parameterM;
             if (gen < -0.5) {
                 gen -= 1;
             }
@@ -268,8 +271,6 @@ namespace PseudoRandomGeneratorAnalysis {
             return data;
         }
 
-        public override void Prepare() { }
-
         public override double Next() {
             throw new NotImplementedException();
         }
@@ -297,12 +298,13 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            calcedN = Math.Pow(parameter_si / parameterA, 1 / parameterB);
+            base.Prepare();
+            calcedN = Math.Pow(parameterSi / parameterA, 1 / parameterB);
             logsOutput("Calced N = " + calcedN.ToString() + '\n') ;
         }
 
         public override double Next() {
-            return NormalNext(calcedN) - (calcedN / 2) + parameter_m;
+            return NormalNext(calcedN) - (calcedN / 2) + parameterM;
         }
     }
 
@@ -327,11 +329,73 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public override void Prepare() {
-            modificator = parameter_si / (parameterA * Math.Pow(parameterN, parameterB));
+            base.Prepare();
+            modificator = parameterSi / (parameterA * Math.Pow(parameterN, parameterB));
         }
 
         public override double Next() {
-            return (NormalNext(parameterN) - parameterN / 2) * modificator + parameter_m;
+            return (NormalNext(parameterN) - parameterN / 2) * modificator + parameterM;
+        }
+    }
+
+    class ModelGenerator : Generator {
+        protected int parameterQ;
+        protected double parameterD;
+        KVPair<double, double>[] model;
+
+        public ModelGenerator() : base() {
+            name = "Моделирующий";
+            AddNewControl("качество", "q", 100M, 0, 1M);
+            AddNewControl("диапазон моделирования", "d", 4M, 2);
+        }
+
+        public override void CollectParameterValues() {
+            base.CollectParameterValues();
+            parameterQ = (int)(controls["q"].Tag as NumericUpDown).Value;
+            parameterD = (double)(controls["d"].Tag as NumericUpDown).Value;
+        }
+
+        public override void Prepare() {
+            base.Prepare();
+            double left = parameterM - parameterSi * parameterD;
+            double right = parameterM + parameterSi * parameterD;
+
+            model = new KVPair<double, double>[parameterQ + 1];
+            double yLast = CoreFunction(left);
+            model[0] = new KVPair<double, double>(left, yLast);
+            for (int i = 1; i <= parameterQ; i++) {
+                double x = (double)i / parameterQ * (right - left) + left;
+                double y = CoreFunction(x);
+                yLast += y;
+                model[i] = new KVPair<double, double>(x, yLast);
+            }
+            model[model.Length - 1].Value = model[model.Length - 1].Value - model[0].Value / yLast;
+            for (int i = 0; i < model.Length - 1; i++) {
+                model[i].Value = (model[i].Value - model[0].Value) / yLast;
+            }
+        }
+        public override double Next() {
+            double rand = random.NextDouble();
+            int il = 0;
+            int ir = model.Length - 1;
+            int im = (il + ir) / 2;
+            while (ir - il > 1) {
+                if (rand >= model[im].Value) {
+                    il = im;
+                } else {
+                    ir = im;
+                }
+                im = (il + ir) / 2;
+            }
+            double lv = model[il].Value;
+            double rv = model[ir].Value;
+            double lk = model[il].Key;
+            double rk = model[ir].Key;
+            double yd = rand - model[il].Value;
+            double prec = yd / (model[ir].Value - model[il].Value);
+            double xd = prec * (model[ir].Key - model[il].Key);
+            double x = xd + model[il].Key;
+            return (rand - model[il].Value) / (model[ir].Value - model[il].Value) * (model[ir].Key - model[il].Key) + model[il].Key;
         }
     }
 
