@@ -56,6 +56,7 @@
     </Compile>
     <Compile Include="Generators.cs" />
     <Compile Include="KVPair.cs" />
+    <Compile Include="LocalMath.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="GUIControl.resx">

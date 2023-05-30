@@ -124,12 +124,22 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public Func<double, double> CoreFunction;
 
+        public Func<double, double> IntegralFunction;
+
         public void RecalcCoreFunction() {
             double a = 1d / parameterSi / Math.Sqrt(2 * Math.PI);
             double b = parameterM;
             double c = parameterSi;
             double z = -1d / 2 / c / c;
             CoreFunction = (x) => { x -= b; return a * Math.Pow(Math.E, x * x * z); };
+        }
+
+        public void RecalcIntegralFunction() {
+            double a = Math.Sqrt(Math.PI) * parameterSi * Math.Pow(Math.E, parameterM / 2 / parameterSi / parameterSi);
+            double c = Math.Sqrt(2);
+            double b = c * parameterSi;
+            double d = 1 / Math.Sqrt(2 * Math.PI * parameterSi * parameterSi);
+            IntegralFunction = (x) =>  (a * LocalMath.Erf(x / a) / c + 0) * d;
         }
 
         public virtual void Prepare() {
@@ -338,10 +348,24 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
+    class CrossPoint {
+        public double X;
+        public double YCore;
+        public double YIntegral;
+
+        public CrossPoint(double x, double yCore, double yIntegral) {
+            X = x;
+            YCore = yCore;
+            YIntegral = yIntegral;
+        }
+
+        public override string ToString() => $"X={X}, Yc={YCore}, Yi={YIntegral}";
+    }
+
     class ModelGenerator : Generator {
         protected int parameterQ;
         protected double parameterD;
-        KVPair<double, double>[] model;
+        CrossPoint[] model;
 
         public ModelGenerator() : base() {
             name = "Моделирующий";
@@ -359,19 +383,20 @@ namespace PseudoRandomGeneratorAnalysis {
             base.Prepare();
             double left = parameterM - parameterSi * parameterD;
             double right = parameterM + parameterSi * parameterD;
+            
 
-            model = new KVPair<double, double>[parameterQ + 1];
+            model = new CrossPoint[parameterQ + 1];
             double yLast = CoreFunction(left);
-            model[0] = new KVPair<double, double>(left, yLast);
+            model[0] = new CrossPoint(left, yLast, 0);
             for (int i = 1; i <= parameterQ; i++) {
                 double x = (double)i / parameterQ * (right - left) + left;
                 double y = CoreFunction(x);
+                model[i] = new CrossPoint(x, y, yLast + y / 2);
                 yLast += y;
-                model[i] = new KVPair<double, double>(x, yLast);
             }
-            model[model.Length - 1].Value = model[model.Length - 1].Value - model[0].Value / yLast;
+            model[model.Length - 1].YIntegral = model[model.Length - 1].YIntegral - model[0].YIntegral / yLast;
             for (int i = 0; i < model.Length - 1; i++) {
-                model[i].Value = (model[i].Value - model[0].Value) / yLast;
+                model[i].YIntegral = (model[i].YIntegral - model[0].YIntegral) / yLast;
             }
         }
         
@@ -381,22 +406,49 @@ namespace PseudoRandomGeneratorAnalysis {
             int ir = model.Length - 1;
             int im = (il + ir) / 2;
             while (ir - il > 1) {
-                if (rand >= model[im].Value) {
+                if (rand >= model[im].YIntegral) {
                     il = im;
                 } else {
                     ir = im;
                 }
                 im = (il + ir) / 2;
             }
-            double lv = model[il].Value;
-            double rv = model[ir].Value;
-            double lk = model[il].Key;
-            double rk = model[ir].Key;
-            double yd = rand - model[il].Value;
-            double prec = yd / (model[ir].Value - model[il].Value);
-            double xd = prec * (model[ir].Key - model[il].Key);
-            double x = xd + model[il].Key;
-            return (rand - model[il].Value) / (model[ir].Value - model[il].Value) * (model[ir].Key - model[il].Key) + model[il].Key;
+            double yl = model[il].YCore;
+            double yr = model[ir].YCore;
+            double xl = model[il].X;
+            double xr = model[ir].X;
+            double fy2x = (model[ir].X - model[il].X) / (model[ir].YIntegral - model[il].YIntegral);
+            double fx2y = (model[ir].YIntegral - model[il].YIntegral) / (model[ir].X - model[il].X);
+            double yd = rand - model[il].YIntegral;
+            double local_rand = yd / (model[ir].YIntegral - model[il].YIntegral);
+            //if (yr > yl) {
+            //    double body = yl / yr;
+            //    body += (1 - body) / 2;
+            //    if (local_rand > body) {
+            //        local_rand = random.NextDouble() + random.NextDouble();
+            //        if (local_rand >= 1) {
+            //            local_rand = 1 - (local_rand - 1);
+            //        }
+            //    } else {
+            //        local_rand = random.NextDouble();
+            //    }
+            //} else {
+            //    double body = yr / yl;
+            //    body += (1 - body) / 2;
+            //    if (local_rand > body) {
+            //        local_rand = random.NextDouble() + random.NextDouble();
+            //        if (local_rand >= 1) {
+            //            local_rand = 1 - (local_rand - 1);
+            //        }
+            //        local_rand = 1 - local_rand;
+            //    } else {
+            //        local_rand = random.NextDouble();
+            //    }
+            //}
+            double xd = local_rand * (model[ir].X - model[il].X);
+            double x = xd + model[il].X;
+            return x;
+            // return (rand - model[il].YIntegral) / (model[ir].YIntegral - model[il].YIntegral) * (model[ir].Key - model[il].Key) + model[il].Key;
         }
     }
 
