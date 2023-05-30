@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace PseudoRandomGeneratorAnalysis {
 
@@ -94,21 +95,32 @@ namespace PseudoRandomGeneratorAnalysis {
             differenceSeries.Name = "difference_" + QualityChart.Series.Count;
             differenceSeries.YValuesPerPoint = 2;
 
-            System.Windows.Forms.DataVisualization.Charting.Series perfectSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
-            perfectSeries.ChartArea = "DistributionArea";
-            perfectSeries.Name = "perfect_" + QualityChart.Series.Count;
-            perfectSeries.YValuesPerPoint = 2;
-            perfectSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            perfectSeries.Color = Color.Blue;
-            perfectSeries.BorderWidth = 2;
-            perfectSeries.Enabled = ShowFunctionCheckBox.Checked;
+            System.Windows.Forms.DataVisualization.Charting.Series perfectCoreSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            perfectCoreSeries.ChartArea = "DistributionArea";
+            perfectCoreSeries.Name = "perfectCore_" + QualityChart.Series.Count;
+            perfectCoreSeries.YValuesPerPoint = 2;
+            perfectCoreSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            perfectCoreSeries.Color = Color.Blue;
+            perfectCoreSeries.BorderWidth = 2;
+            perfectCoreSeries.Enabled = ShowFunctionCheckBox.Checked;
+
+            System.Windows.Forms.DataVisualization.Charting.Series perfectIntegralSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
+            perfectIntegralSeries.ChartArea = "IntegralArea";
+            perfectIntegralSeries.Name = "perfectIntegral_" + QualityChart.Series.Count;
+            perfectIntegralSeries.YValuesPerPoint = 2;
+            perfectIntegralSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            perfectIntegralSeries.Color = Color.Blue;
+            perfectIntegralSeries.BorderWidth = 2;
+            perfectIntegralSeries.Enabled = ShowFunctionCheckBox.Checked;
 
             double maxPerfectValue = 0;
             ulong maxValue = 0;
-            Dictionary<double, KVPair<ulong, double>> comparasions = new Dictionary<double, KVPair<ulong, double>>();
+            // Dictionary<double, KVPair<ulong, double>> comparasions = new Dictionary<double, KVPair<ulong, double>>();
+            List<CrossItem> crossData = new List<CrossItem>();
             foreach (KeyValuePair<int, ulong> dataX in data) {
                 double perfectValue = generator.CoreFunction(dataX.Key);
-                comparasions.Add(dataX.Key, new KVPair<ulong, double>(dataX.Value, perfectValue));
+                // comparasions.Add(dataX.Key, new KVPair<ulong, double>(dataX.Value, perfectValue));
+                crossData.Add(new CrossItem(dataX.Key, dataX.Value, perfectValue, generator.IntegralFunction(dataX.Key)));
                 if (perfectValue > maxPerfectValue) {
                     maxPerfectValue = perfectValue;
                 }
@@ -116,21 +128,28 @@ namespace PseudoRandomGeneratorAnalysis {
                     maxValue = dataX.Value;
                 }
             }
-            foreach (KeyValuePair<double, KVPair<ulong, double>> i in comparasions) {
-                double difference = (double)i.Value.Key / randCount - i.Value.Value;
-                differenceSeries.Points.AddXY(i.Key, difference);
-                perfectSeries.Points.AddXY(i.Key, i.Value.Value);
+            crossData.Sort();
+            foreach (CrossItem crossItem in crossData) {
+                double difference = (double)(crossItem.Y / randCount - crossItem.YCorePerfect);
+                differenceSeries.Points.AddXY(crossItem.X, difference);
+                perfectCoreSeries.Points.AddXY(crossItem.X, crossItem.YCorePerfect);
+                perfectIntegralSeries.Points.AddXY(crossItem.X, crossItem.YIntegralPerfect);
             }
-            int xMin = data.Keys.Min();
-            int xMax = data.Keys.Max();
-            for (int x = xMin; x <= xMax; x++) {
-                if (!data.Keys.Contains(x)) {
-                    perfectSeries.Points.AddXY(x, generator.CoreFunction(x));
-                }
-            }
+            //int xMin = data.Keys.Min();
+            //int xMax = data.Keys.Max();
+            //for (int x = xMin; x <= xMax; x++) {
+            //    if (!data.Keys.Contains(x)) {
+            //        perfectCoreSeries.Points.AddXY(x, generator.CoreFunction(x));
+            //        //Invoke((Action)(() => Console.WriteLine(generator.IntegralFunction(x))));
+            //        //Invoke((Action)(() => Console.WriteLine("hi")));
+            //        //perfectIntegralSeries.Points.AddXY(x, generator.IntegralFunction(x));
+            //    }
+            //}
             QualityChart.Series.Add(differenceSeries);
-            perfectSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
-            DistributionChart.Series.Add(perfectSeries);
+            //perfectCoreSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
+            //perfectIntegralSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
+            DistributionChart.Series.Add(perfectCoreSeries);
+            IntegralChart.Series.Add(perfectIntegralSeries);
         }
 
         private void CorrectChartsZoom(Dictionary<int, ulong> data, double parameter_m) {
@@ -295,8 +314,8 @@ namespace PseudoRandomGeneratorAnalysis {
         private void ShowFunctionCheckBox_CheckedChanged(object sender, EventArgs e) {
             int seriesCount = DistributionChart.Series.Count / 2;
             for (int i = 0; i < seriesCount; i++) {
-                string seriesName = "perfect_" + i;
-                DistributionChart.Series[seriesName].Enabled = (sender as CheckBox).Checked;
+                DistributionChart.Series["perfectCore_" + i].Enabled = (sender as CheckBox).Checked;
+                IntegralChart.Series["perfectIntegral_" + i].Enabled = (sender as CheckBox).Checked;
             }
         }
 

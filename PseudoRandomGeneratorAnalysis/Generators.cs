@@ -135,15 +135,16 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public void RecalcIntegralFunction() {
-            double a = Math.Sqrt(Math.PI) * parameterSi * Math.Pow(Math.E, parameterM / 2 / parameterSi / parameterSi);
+            double a = Math.Sqrt(Math.PI) * parameterSi; // * Math.Pow(Math.E, parameterM / 2 / parameterSi / parameterSi);
             double c = Math.Sqrt(2);
             double b = c * parameterSi;
             double d = 1 / Math.Sqrt(2 * Math.PI * parameterSi * parameterSi);
-            IntegralFunction = (x) =>  (a * LocalMath.Erf(x / a) / c + 0) * d;
+            IntegralFunction = (x) =>  (a * LocalMath.Erf((x - parameterM) * 1.2882 / a) / c) * d + 0.5;
         }
 
         public virtual void Prepare() {
             RecalcCoreFunction();
+            RecalcIntegralFunction();
         }
 
         public abstract double Next();
