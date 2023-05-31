@@ -76,10 +76,12 @@
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
             this.NaturalProportionsCheckBox = new System.Windows.Forms.CheckBox();
-            this.ShowFunctionCheckBox = new System.Windows.Forms.CheckBox();
+            this.ShowFunctionCheckBox1 = new System.Windows.Forms.CheckBox();
             this.QualityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.ShowFunctionCheckBox2 = new System.Windows.Forms.CheckBox();
             this.ControlPanel.SuspendLayout();
             this.buttonsContainer.SuspendLayout();
             this.StaticInfo.SuspendLayout();
@@ -109,6 +111,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // ControlPanel
@@ -606,6 +609,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.panel3);
             this.tabPage3.Controls.Add(this.IntegralChart);
             this.tabPage3.Location = new System.Drawing.Point(4, 31);
             this.tabPage3.Name = "tabPage3";
@@ -643,10 +647,10 @@
             // 
             this.tabPage4.Controls.Add(this.panel2);
             this.tabPage4.Controls.Add(this.QualityChart);
-            this.tabPage4.Location = new System.Drawing.Point(4, 25);
+            this.tabPage4.Location = new System.Drawing.Point(4, 31);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(957, 362);
+            this.tabPage4.Size = new System.Drawing.Size(957, 356);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "График отклонений";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -654,9 +658,9 @@
             // panel2
             // 
             this.panel2.Controls.Add(this.NaturalProportionsCheckBox);
-            this.panel2.Controls.Add(this.ShowFunctionCheckBox);
+            this.panel2.Controls.Add(this.ShowFunctionCheckBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(3, 327);
+            this.panel2.Location = new System.Drawing.Point(3, 321);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(951, 32);
             this.panel2.TabIndex = 4;
@@ -675,17 +679,17 @@
             this.NaturalProportionsCheckBox.UseVisualStyleBackColor = true;
             this.NaturalProportionsCheckBox.CheckedChanged += new System.EventHandler(this.NaturalProportionsCheckBox_CheckedChanged);
             // 
-            // ShowFunctionCheckBox
+            // ShowFunctionCheckBox1
             // 
-            this.ShowFunctionCheckBox.AutoSize = true;
-            this.ShowFunctionCheckBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.ShowFunctionCheckBox.Location = new System.Drawing.Point(0, 0);
-            this.ShowFunctionCheckBox.Name = "ShowFunctionCheckBox";
-            this.ShowFunctionCheckBox.Size = new System.Drawing.Size(191, 32);
-            this.ShowFunctionCheckBox.TabIndex = 2;
-            this.ShowFunctionCheckBox.Text = "Показать функцию";
-            this.ShowFunctionCheckBox.UseVisualStyleBackColor = true;
-            this.ShowFunctionCheckBox.CheckedChanged += new System.EventHandler(this.ShowFunctionCheckBox_CheckedChanged);
+            this.ShowFunctionCheckBox1.AutoSize = true;
+            this.ShowFunctionCheckBox1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.ShowFunctionCheckBox1.Location = new System.Drawing.Point(0, 0);
+            this.ShowFunctionCheckBox1.Name = "ShowFunctionCheckBox1";
+            this.ShowFunctionCheckBox1.Size = new System.Drawing.Size(191, 32);
+            this.ShowFunctionCheckBox1.TabIndex = 2;
+            this.ShowFunctionCheckBox1.Text = "Показать функцию";
+            this.ShowFunctionCheckBox1.UseVisualStyleBackColor = true;
+            this.ShowFunctionCheckBox1.CheckedChanged += new System.EventHandler(this.ShowFunctionCheckBox_CheckedChanged);
             // 
             // QualityChart
             // 
@@ -705,7 +709,7 @@
             this.QualityChart.Margin = new System.Windows.Forms.Padding(4);
             this.QualityChart.Name = "QualityChart";
             this.QualityChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
-            this.QualityChart.Size = new System.Drawing.Size(951, 356);
+            this.QualityChart.Size = new System.Drawing.Size(951, 350);
             this.QualityChart.TabIndex = 3;
             this.QualityChart.Text = "QualityChart";
             // 
@@ -737,6 +741,27 @@
             this.splitContainer1.Size = new System.Drawing.Size(1285, 749);
             this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 2;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.ShowFunctionCheckBox2);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel3.Location = new System.Drawing.Point(3, 321);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(951, 32);
+            this.panel3.TabIndex = 5;
+            // 
+            // ShowFunctionCheckBox2
+            // 
+            this.ShowFunctionCheckBox2.AutoSize = true;
+            this.ShowFunctionCheckBox2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.ShowFunctionCheckBox2.Location = new System.Drawing.Point(0, 0);
+            this.ShowFunctionCheckBox2.Name = "ShowFunctionCheckBox2";
+            this.ShowFunctionCheckBox2.Size = new System.Drawing.Size(191, 32);
+            this.ShowFunctionCheckBox2.TabIndex = 2;
+            this.ShowFunctionCheckBox2.Text = "Показать функцию";
+            this.ShowFunctionCheckBox2.UseVisualStyleBackColor = true;
+            this.ShowFunctionCheckBox2.CheckedChanged += new System.EventHandler(this.ShowFunctionCheckBox_CheckedChanged);
             // 
             // GUIControl
             // 
@@ -785,6 +810,8 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -833,12 +860,14 @@
         private System.Windows.Forms.DataVisualization.Charting.Chart IntegralChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart QualityChart;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.CheckBox ShowFunctionCheckBox;
+        private System.Windows.Forms.CheckBox ShowFunctionCheckBox1;
         private System.Windows.Forms.Label LabelIn3;
         private System.Windows.Forms.Label LabelIn2;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox NaturalProportionsCheckBox;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.CheckBox ShowFunctionCheckBox2;
     }
 }
 

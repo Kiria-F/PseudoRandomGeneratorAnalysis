@@ -102,7 +102,7 @@ namespace PseudoRandomGeneratorAnalysis {
             perfectCoreSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             perfectCoreSeries.Color = Color.Blue;
             perfectCoreSeries.BorderWidth = 2;
-            perfectCoreSeries.Enabled = ShowFunctionCheckBox.Checked;
+            perfectCoreSeries.Enabled = ShowFunctionCheckBox1.Checked;
 
             System.Windows.Forms.DataVisualization.Charting.Series perfectIntegralSeries = new System.Windows.Forms.DataVisualization.Charting.Series();
             perfectIntegralSeries.ChartArea = "IntegralArea";
@@ -111,7 +111,7 @@ namespace PseudoRandomGeneratorAnalysis {
             perfectIntegralSeries.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             perfectIntegralSeries.Color = Color.Blue;
             perfectIntegralSeries.BorderWidth = 2;
-            perfectIntegralSeries.Enabled = ShowFunctionCheckBox.Checked;
+            perfectIntegralSeries.Enabled = ShowFunctionCheckBox1.Checked;
 
             double maxPerfectValue = 0;
             ulong maxValue = 0;
@@ -312,10 +312,13 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ShowFunctionCheckBox_CheckedChanged(object sender, EventArgs e) {
+            bool on = (sender as CheckBox).Checked;
+            ShowFunctionCheckBox1.Checked = on;
+            ShowFunctionCheckBox2.Checked = on;
             int seriesCount = DistributionChart.Series.Count / 2;
             for (int i = 0; i < seriesCount; i++) {
-                DistributionChart.Series["perfectCore_" + i].Enabled = (sender as CheckBox).Checked;
-                IntegralChart.Series["perfectIntegral_" + i].Enabled = (sender as CheckBox).Checked;
+                DistributionChart.Series["perfectCore_" + i].Enabled = on;
+                IntegralChart.Series["perfectIntegral_" + i].Enabled = on;
             }
         }
 
