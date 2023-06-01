@@ -16,6 +16,7 @@ namespace PseudoRandomGeneratorAnalysis {
         public readonly Dictionary<string, Panel> controls;
         protected double parameterM;
         protected double parameterSi;
+        protected object[] debugMemoryWire;
 
         public Generator() {
             name = "Новый генератор";
@@ -32,14 +33,15 @@ namespace PseudoRandomGeneratorAnalysis {
             Generator.progressOutput = progressOutput;
         }
 
-        protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
+        protected NumericUpDown ConstructInput(string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null, decimal? increment = null) {
             if (!min.HasValue) min = decimal.MinValue;
             if (!max.HasValue) max = decimal.MaxValue;
+            if (!increment.HasValue) increment = (decimal)(1D / Math.Pow(10, quality));
 
             NumericUpDown newInput = new NumericUpDown();
             newInput.Name = "input_" + name;
             newInput.DecimalPlaces = quality;
-            newInput.Increment = (decimal)(1D / Math.Pow(10, quality));
+            newInput.Increment = increment.Value;
             newInput.AutoSize = true;
             newInput.Dock = System.Windows.Forms.DockStyle.Fill;
             newInput.Minimum = min.Value;
@@ -70,8 +72,8 @@ namespace PseudoRandomGeneratorAnalysis {
             return newPanel;
         }
 
-        protected void AddNewControl(string label, string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null) {
-            NumericUpDown newInput = ConstructInput(name, defaultValue, quality, min, max);
+        protected void AddNewControl(string label, string name, decimal defaultValue, int quality, decimal? min = null, decimal? max = null, decimal? increment = null) {
+            NumericUpDown newInput = ConstructInput(name, defaultValue, quality, min, max, increment);
             Panel newControl = ConstructControl(label, newInput);
             controls.Add(name, newControl);
         }
@@ -104,6 +106,7 @@ namespace PseudoRandomGeneratorAnalysis {
                 int iGen = (int)(gen + 0.5D);
                 sequence[iGen] = sequence.TryGetValue(iGen, out ulong count) ? count + 1 : 1;
             }
+            debugMemoryWire = new object[] { sequence };
             return sequence;
         }
 
@@ -135,11 +138,9 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         public void RecalcIntegralFunction() {
-            double a = Math.Sqrt(Math.PI) * parameterSi; // * Math.Pow(Math.E, parameterM / 2 / parameterSi / parameterSi);
-            double c = Math.Sqrt(2);
-            double b = c * parameterSi;
-            double d = 1 / Math.Sqrt(2 * Math.PI * parameterSi * parameterSi);
-            IntegralFunction = (x) =>  (a * LocalMath.Erf((x - parameterM) * 1.2882 / a) / c) * d + 0.5;
+            double a = Math.Sqrt(2) * parameterSi;
+            double b = parameterM / a;
+            IntegralFunction = (x) => LocalMath.Erf(x / a - b) / 2 + 0.5;
         }
 
         public virtual void Prepare() {
@@ -205,7 +206,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public GrandCLTGenerator() : base() {
             name = "Идеальный";
-            AddNewControl("Исп. посл-ей", "n", 10M, 3);
+            AddNewControl("Исп. посл-ей", "n", 10M, 3, 1, null, 1);
         }
 
         public override void CollectParameterValues() {
