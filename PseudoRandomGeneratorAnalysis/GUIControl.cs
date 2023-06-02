@@ -132,19 +132,15 @@ namespace PseudoRandomGeneratorAnalysis {
             foreach (CrossItem crossItem in crossData) {
                 double difference = (double)(crossItem.Y / randCount - crossItem.YCorePerfect);
                 differenceSeries.Points.AddXY(crossItem.X, difference);
-                perfectCoreSeries.Points.AddXY(crossItem.X, crossItem.YCorePerfect);
-                perfectIntegralSeries.Points.AddXY(crossItem.X, crossItem.YIntegralPerfect);
             }
-            //int xMin = data.Keys.Min();
-            //int xMax = data.Keys.Max();
-            //for (int x = xMin; x <= xMax; x++) {
-            //    if (!data.Keys.Contains(x)) {
-            //        perfectCoreSeries.Points.AddXY(x, generator.CoreFunction(x));
-            //        //Invoke((Action)(() => Console.WriteLine(generator.IntegralFunction(x))));
-            //        //Invoke((Action)(() => Console.WriteLine("hi")));
-            //        //perfectIntegralSeries.Points.AddXY(x, generator.IntegralFunction(x));
-            //    }
-            //}
+            int xMin = data.Keys.Min();
+            int xMax = data.Keys.Max();
+            int quality = 100;
+            for (int i = 0; i <= quality; i++) {
+                double x = (double)(xMax - xMin) / quality * i + xMin;
+                perfectCoreSeries.Points.AddXY(x, generator.CoreFunction(x));
+                perfectIntegralSeries.Points.AddXY(x, generator.IntegralFunction(x));
+            }
             QualityChart.Series.Add(differenceSeries);
             //perfectCoreSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");
             //perfectIntegralSeries.Sort(System.Windows.Forms.DataVisualization.Charting.PointSortOrder.Ascending, "X");

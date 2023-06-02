@@ -139,8 +139,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public void RecalcIntegralFunction() {
             double a = Math.Sqrt(2) * parameterSi;
-            double b = parameterM / a;
-            IntegralFunction = (x) => LocalMath.Erf(x / a - b) / 2 + 0.5;
+            IntegralFunction = (x) => LocalMath.Erf((x - parameterM) / a) / 2 + 0.5;
         }
 
         public virtual void Prepare() {
