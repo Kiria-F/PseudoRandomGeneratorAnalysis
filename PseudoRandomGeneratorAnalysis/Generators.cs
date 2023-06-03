@@ -349,20 +349,24 @@ namespace PseudoRandomGeneratorAnalysis {
         }
     }
 
-    class PointD {
-        public double X, Y;
+    class CrossPoint {
+        public double X;
+        public double YCore;
+        public double YIntegral;
 
-        public PointD(double x, double y) {
+        public CrossPoint(double x, double yCore, double yIntegral) {
             X = x;
-            Y = y;
+            YCore = yCore;
+            YIntegral = yIntegral;
         }
+
+        public override string ToString() => $"X={X}, Yc={YCore}, Yi={YIntegral}";
     }
 
     class ModelGenerator : Generator {
         protected int parameterQ;
         protected double parameterD;
-        PointD[] coreModel;
-        PointD[] integralModel;
+        CrossPoint[] model;
 
         public ModelGenerator() : base() {
             name = "Моделирующий";
@@ -381,39 +385,38 @@ namespace PseudoRandomGeneratorAnalysis {
             double left = parameterM - parameterSi * parameterD;
             double right = parameterM + parameterSi * parameterD;
 
-            coreModel = new PointD[parameterQ];
-            integralModel = new PointD[parameterQ - 1];
-            for (int i = 0; i < parameterQ; i++) {
-                double x = (double)i / (parameterQ - 1) * (right - left) + left;
+            model = new CrossPoint[parameterQ + 1];
+            // double yLast = CoreFunction(left);
+            // model[0] = new CrossPoint(left, yLast, 0);
+            for (int i = 0; i <= parameterQ; i++) {
+                double x = (double)i / parameterQ * (right - left) + left;
                 double y = CoreFunction(x);
-                coreModel[i] = new PointD(x, y);
+                model[i] = new CrossPoint(x, y, IntegralFunction(x));
+                // yLast += y;
             }
-            for (int i = 0; i < parameterQ - 1; i++) {
-                double x = (coreModel[i].X + coreModel[i + 1].X) / 2;
-                double y = IntegralFunction(x);
-                integralModel[i] = new PointD(x, y);
-            }
+            //model[model.Length - 1].YIntegral = model[model.Length - 1].YIntegral - model[0].YIntegral / yLast;
+            //for (int i = 0; i < model.Length - 1; i++) {
+            //    model[i].YIntegral = (model[i].YIntegral - model[0].YIntegral) / yLast;
+            //}
         }
         
         public override double Next() {
             double rand = random.NextDouble();
             int il = 0;
-            int ir = integralModel.Length - 1;
+            int ir = model.Length - 1;
             int im = (il + ir) / 2;
             while (ir - il > 1) {
-                if (rand >= integralModel[im].Y) {
+                if (rand >= model[im].YIntegral) {
                     il = im;
                 } else {
                     ir = im;
                 }
                 im = (il + ir) / 2;
             }
-            im = rand - il < ir - rand ? il : ir;
-            il = im;
-            ir = im + 1;
-            double yl = coreModel[il].Y;
-            double yr = coreModel[ir].Y;
-            double local_rand = random.NextDouble();
+            double yl = model[il].YCore;
+            double yr = model[ir].YCore;
+            double yd = rand - model[il].YIntegral;
+            double local_rand = yd / (model[ir].YIntegral - model[il].YIntegral);
             if (yr > yl) {
                 double body = yl / yr;
                 if (local_rand > body) {
@@ -436,8 +439,8 @@ namespace PseudoRandomGeneratorAnalysis {
                     local_rand = random.NextDouble();
                 }
             }
-            double xd = local_rand * (coreModel[ir].X - coreModel[il].X);
-            double x = xd + coreModel[il].X;
+            double xd = local_rand * (model[ir].X - model[il].X);
+            double x = xd + model[il].X;
             return x;
         }
     }
