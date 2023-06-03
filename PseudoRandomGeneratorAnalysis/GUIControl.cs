@@ -15,7 +15,7 @@ namespace PseudoRandomGeneratorAnalysis {
         private int lastProgressVal = -1;
 
         private Generator[] generators = new Generator[] {
-            new GrandCLTGenerator(),
+            new PerfectCLTGenerator(),
             new StaticCLTGenerator(),
             new DynamicCLTGenerator(),
             new ModelGenerator(),

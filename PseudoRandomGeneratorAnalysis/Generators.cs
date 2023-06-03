@@ -199,11 +199,11 @@ namespace PseudoRandomGeneratorAnalysis {
     //    }
     //}
 
-    class GrandCLTGenerator : Generator {
+    class PerfectCLTGenerator : Generator {
         protected double parameterN;
         protected double preSi;
 
-        public GrandCLTGenerator() : base() {
+        public PerfectCLTGenerator() : base() {
             name = "Идеальный";
             AddNewControl("Исп. посл-ей", "n", 10M, 3, 1, null, 1);
         }
