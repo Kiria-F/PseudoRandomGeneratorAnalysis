@@ -19,11 +19,15 @@ namespace PseudoRandomGeneratorAnalysis {
             new StaticCLTGenerator(),
             new DynamicCLTGenerator(),
             new ModelGenerator(),
+            new BoxMullerGenerator(),
             new BasicGenerator()
         };
 
         public GUIControl() {
             InitializeComponent();
+            //DistributionChart.ChartAreas["DistributionArea"].AxisX.Enabled = AxisEnabled.False;
+            //DistributionChart.ChartAreas["DistributionArea"].AxisY.Enabled = AxisEnabled.False;
+
             // DistributionChart.ChartAreas["DistributionArea"].AxisX.Minimum = 0;
 
             foreach (Generator generator in generators) {
@@ -380,11 +384,11 @@ namespace PseudoRandomGeneratorAnalysis {
             ulong N = (ulong)InputCount.Value;
             new Task(() => {
                 Random random = new Random();
-                TextWriter xs = new StreamWriter(new FileStream("f22xs.txt", FileMode.OpenOrCreate, FileAccess.Write));
-                TextWriter ys = new StreamWriter(new FileStream("f22ys.txt", FileMode.OpenOrCreate, FileAccess.Write));
-                TextWriter ps = new StreamWriter(new FileStream("f22ps.json", FileMode.OpenOrCreate, FileAccess.Write));
-                var n_max = 5;
-                for (double n = 1; n < n_max; n += 0.01) {
+                TextWriter xs = new StreamWriter(new FileStream("xs.txt", FileMode.OpenOrCreate, FileAccess.Write));
+                TextWriter ys = new StreamWriter(new FileStream("ys.txt", FileMode.OpenOrCreate, FileAccess.Write));
+                TextWriter ps = new StreamWriter(new FileStream("ps.json", FileMode.OpenOrCreate, FileAccess.Write));
+                var n_max = 100;
+                for (int n = 1; n < n_max; n += 1) {
                     generator.SetN(n);
                     Dictionary<int, ulong> data = generator.Sequence(N);
                     double m = 0, d = 0;
@@ -398,11 +402,11 @@ namespace PseudoRandomGeneratorAnalysis {
                     }
                     d /= N;
                     double si = Math.Sqrt(d);
-                    ps.Write("{ \"x\": " + (n).ToString().Replace(',', '.') + ", \"y\": " + (si).ToString().Replace(',', '.') + " }, ");
+                    ps.Write("{ \"x\": " + n.ToString().Replace(',', '.') + ", \"y\": " + (si).ToString().Replace(',', '.') + " }, ");
                     xs.WriteLine(n.ToString());
-                    ys.WriteLine((si).ToString());
+                    ys.WriteLine(si.ToString());
                     
-                    Invoke((Action)(() => { ConsoleSetProgress(n / n_max); }));
+                    Invoke((Action)(() => { ConsoleSetProgress((double)n / n_max); }));
                 }
                 xs.Close();
                 ys.Close();
@@ -421,6 +425,5 @@ namespace PseudoRandomGeneratorAnalysis {
         private void GUIControl_SizeChanged(object sender, EventArgs e) {
             ConsoleWrite(Size.ToString() + "\n");
         }
-
     }
 }
