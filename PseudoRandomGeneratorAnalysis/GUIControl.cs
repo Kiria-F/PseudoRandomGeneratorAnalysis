@@ -25,6 +25,7 @@ namespace PseudoRandomGeneratorAnalysis {
 
         public GUIControl() {
             InitializeComponent();
+            TabControl.Controls.Remove(TabControl.TabPages["ConsolePage"]);
             //DistributionChart.ChartAreas["DistributionArea"].AxisX.Enabled = AxisEnabled.False;
             //DistributionChart.ChartAreas["DistributionArea"].AxisY.Enabled = AxisEnabled.False;
 
@@ -419,11 +420,7 @@ namespace PseudoRandomGeneratorAnalysis {
         }
 
         private void ButtonTest_Click(object sender, EventArgs e) {
-            Test_2text();
         }
 
-        private void GUIControl_SizeChanged(object sender, EventArgs e) {
-            ConsoleWrite(Size.ToString() + "\n");
-        }
     }
 }
